@@ -16,3 +16,6 @@
 - [ ] [your name](githun url)
 - [ ] [weifan](https://github.com/p988744)
 - [ ] [yijia](https://github.com/victoria.304040)
+- [ ] [serena](https://github.com/ssserena0412)
+- [ ] [cindy](https://github.com/cindyas3)
+- 
