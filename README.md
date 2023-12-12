@@ -7,13 +7,13 @@
 ## Requirements
 
 - hello word
-- click
+- [click](https://click.palletsprojects.com/en/8.1.x/)
 - parse args to dictionary
 - git -> github
 
 ## Contributors
 
-- [ ] [your name](githun url)
+- [ ] [your name](github.url)
 - [ ] [weifan](https://github.com/p988744)
 - [ ] [yijia](https://github.com/victoria.304040)
 - [ ] [serena](https://github.com/ssserena0412)
