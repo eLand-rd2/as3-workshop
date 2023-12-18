@@ -1,6 +1,4 @@
-import click
-from cli_scripts import cli  # Assuming your script is named cli_script.py
+from cli_scripts import say_hello
 
 if __name__ == '__main__':
-    cli()
-
+    say_hello()
