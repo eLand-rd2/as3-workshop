@@ -10,7 +10,9 @@
 - [click](https://click.palletsprojects.com/en/8.1.x/)
 - parse args to dictionary
 - git -> github
-- requests(爬文)
+- requests (爬文)
+- scheduler (排程) + sqlite (資料庫)
+- pandas (報表製作)
 
 ## Contributors
 
