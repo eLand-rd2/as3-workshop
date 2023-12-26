@@ -30,5 +30,5 @@ from bs4 import BeautifulSoup
 soup = BeautifulSoup(ptt_response.text,features="html.parser")
 
 for entry in soup.select('.r-ent'):
-    print(entry.select('.title')[0].text,entry.select('.date')[0].text)
+    print(entry.select('.title')[0].text)
     # save data to db
