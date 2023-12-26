@@ -26,9 +26,9 @@ if __name__ == '__main__':
     #print(ptt_response.text)
 
     # parse html in response
-from bs4 import BeautifulSoup
-soup = BeautifulSoup(ptt_response.text,features="html.parser")
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(ptt_response.text,features="html.parser")
 
-for entry in soup.select('.r-ent'):
-    print(entry.select('.title')[0].text)
-    # save data to db
+    for entry in soup.select('.r-ent'):
+        print(entry.select('.title')[0].text)
+        # save data to db
