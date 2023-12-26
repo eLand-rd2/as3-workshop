@@ -18,6 +18,8 @@ data = {
 }
 df = pd.DataFrame(data)
 
+
+
 # 資料清理
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
@@ -45,10 +47,8 @@ sheet_1 = df.groupby(['source', 'brand']).agg({
     'sentiment_中立': 'count',  # 中立數
 }).reset_index()
 # 計算 P/N 比
-sheet_1['PN ratio'] = sheet_1['sentiment_正面']/sheet_1['sentiment_負面']
-sheet_1['PN ratio'] = sheet_1['PN ratio'].astype(float)  # 將 PN ratio 欄位轉換為浮點數
-sheet_1['PN ratio'] = sheet_1['PN ratio'].round(2)
-# sheet_1.loc['sentiment_正面'] == 0,
+sheet_1['PN ratio'] = (sheet_1['sentiment_正面']/sheet_1['sentiment_負面']).apply(lambda x: round(x, 2) if x > 0 else 0 if x == 0 else '-')
+
 # 重新排序欄位
 sheet_1 = sheet_1[['source', 'brand', 'comment', 'rating', 'sentiment_正面', 'sentiment_負面', 'sentiment_中立', 'PN ratio']]
 sheet_1 = sheet_1.sort_values(by=['source', 'brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
