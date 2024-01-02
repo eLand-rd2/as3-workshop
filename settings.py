@@ -1,5 +1,6 @@
 from spiders.momo_spider import MomoSpider
 from spiders.shopee_spider import ShopeeSpider
+from base import BaseSpider
 
 database = 'AS3_data.db'
 spider_target = [
@@ -10,7 +11,8 @@ spider_target = [
     {
         "spider_class": ShopeeSpider,
         "url": "shopee url"
-    }
+    },
+
 ]
 
 topics = {
@@ -18,3 +20,9 @@ topics = {
     "價格": ["價格", "價格便宜", "價格不便宜", "價格好", "價格不好", "價格很好", "價格很不好", "價格很棒", "價格很差", "價格很爛", "價格很好", "價格很不好", "價格很棒", "價格很差", "價格很爛", "價格很好", "價格很不好", "價格很棒", "價格很差", "價格很爛", "價格很好", "價格很不好", "價格很棒", "價格很差", "價格很爛"],
     "品質": ["品質", "品質好", "品質不好", "品質很好", "品質很不好", "品質很棒", "品質很差", "品質很爛", "品質很好", "品質很不好", "品質很棒", "品質很差", "品質很爛", "品質很好", "品質很不好", "品質很棒", "品質很差", "品質很爛", "品質很好", "品質很不好", "品質很棒", "品質很差", "品質很爛"],
 }
+
+base_url = [
+    'https://www.ptt.cc/bbs/MakeUp/index.html',
+    'https://www.ptt.cc/bbs/BeautySalon/index.html',
+    'https://www.ptt.cc/bbs/KoreaStar/index.html'
+]
