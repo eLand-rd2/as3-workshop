@@ -9,7 +9,6 @@ class BaseSpider:
         self.ua = UserAgent()  # 每次查詢初始化 UserAgent
 
     def request_page(self, url, headers=None, cookies=None):
-        print(f"requesting {url}")
         response = requests.get(url, headers=headers, cookies=cookies)
         headers = {'user-agent': self.ua.random
                    }

@@ -1,27 +1,34 @@
 import click
 
+import settings
 
+
+# run periodic task
 @click.command()
-@click.option('--count', default=1, help='Number of greetings.')
-@click.option('--name', prompt='Your name',
-              help='The person to greet.')
-def say_hello(count, name):
-    """Simple program that greets NAME for a total of COUNT times."""
-    for x in range(count):
-        click.echo(f"Hello {name}!")
+def run_spider():
+    """Run periodic task."""
+    TARGETS = settings.spider_target
+    for target in TARGETS:
+        spider_cls = target['spider_class']
+        target_url_list = target['urls']
+
+        spider = spider_cls()
+
+        for target_url in target_url_list:
+            spider.run(target_url)
 
 
-def print_time(timezone):
-    # TODO print current time
-    pass
-
-
+# run generate report task
 @click.command()
-@click.option('--height', prompt='Your height (in meters)', type=float, help='Number of height.')
-@click.option('--weight', prompt='Your weight (in kg)', type=float, help='Number of weight.')
-def calculate_bmi(height, weight):
-    bmi = weight/(height**2)
-    click.echo(f"您的bmi為 {bmi:.2f}!")
+@click.option('--begin_date', default=None, help='Begin date of report.')
+@click.option('--end_date', default=None, help='End date of report.')
+@click.option('--output', default=None, help='Output file path.')
+def generate_report(begin_date, end_date, output):
+    """Generate report."""
+    # step 1: get data from database
+    # step 2: generate report
+    # step 3: save report to file
+    raise NotImplementedError
 
 
 # Create Click command group
@@ -32,8 +39,8 @@ def cli():
 
 
 # Add commands to the group
-cli.add_command(say_hello)
-cli.add_command(calculate_bmi)
+cli.add_command(run_spider)
+cli.add_command(generate_report)
 
 if __name__ == '__main__':
     cli()
