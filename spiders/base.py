@@ -8,7 +8,7 @@ class BaseSpider:
         self.ua = UserAgent()  #每次查詢初始化 UserAgent
 
     def request_page(self, url, headers=None, cookies=None):
-            response = requests.get(surl, headers=headers, cookies=cookies)
+            response = requests.get(url, headers=headers, cookies=cookies)
             headers = {'user-agent': self.ua.random
                        }
             if response.status_code == 200:
