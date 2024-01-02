@@ -3,10 +3,9 @@ import requests
 import json
 from requests.exceptions import RequestException, JSONDecodeError
 
-
-
 # 維度標記
 topics = settings.topics
+
 
 def match_topics(text):
     matched_topics = []
@@ -18,13 +17,15 @@ def match_topics(text):
     return matched_topics
 
 
-
 # 情緒標記
 api_key = settings.sentiment_api_key
 api_url = settings.sentiment_api_url
+
+
 def get_sentiment(doc):
     headers = {
         'Content-Type': "application/json",
+        'X-API-Key': settings.sentiment_api_key
     }
     # API 請求參數
     payload = json.dumps({
@@ -37,6 +38,7 @@ def get_sentiment(doc):
     for doc in docs:
         response = session.post(api_url, headers=headers, data=payload)
     print(response.text)
+
 
 if __name__ == '__main__':
     docs = [
@@ -58,6 +60,3 @@ def PN_ratio(positive, negative):
     else:
         pn = round(positive / negative, 2)
     return
-
-
-
