@@ -22,8 +22,7 @@ topics = {
 base_url = [
     'https://www.ptt.cc/bbs/MakeUp/index.html',
     'https://www.ptt.cc/bbs/BeautySalon/index.html',
-    'https://www.ptt.cc/bbs/KoreaStar/index.html'
-]
+    'https://www.ptt.cc/bbs/KoreaStar/index.html']
 
 sentiment_api_url = 'https://nlpcore.eland.com.tw/deepnlp/api/sentiment'
 sentiment_api_key = 'Nnt2fQLj.RDnXd81F2nh9AmCZBAFhH2XD7LNAKSRv'
