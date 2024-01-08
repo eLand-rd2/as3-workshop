@@ -28,7 +28,8 @@ if __name__ == '__main__':
     # parse html in response
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(ptt_response.text,features="html.parser")
+    print(soup.select('.board-label'))
 
-    for entry in soup.select('.r-ent'):
-        print(entry.select('.title')[0].text)
+    #for entry in soup.select('.r-ent'):
+        #print(entry.select('.title')[0].text)
         # save data to db

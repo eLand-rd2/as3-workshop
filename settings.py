@@ -1,6 +1,6 @@
-from spiders.base import BaseSpider
 from spiders.momo_spider import MomoSpider
 from spiders.shopee_spider import ShopeeSpider
+from spiders.Ptt_spider import PttSpider
 
 database = 'AS3_data.db'
 spider_target = [
@@ -13,7 +13,7 @@ spider_target = [
         "urls": []
     },
     {
-        "spider_class": BaseSpider,
+        "spider_class": PttSpider,
         'urls': [
             'https://www.ptt.cc/bbs/MakeUp/index.html',
             'https://www.ptt.cc/bbs/BeautySalon/index.html',
