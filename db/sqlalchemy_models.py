@@ -12,6 +12,14 @@ engine = create_engine('sqlite:///AS3_data.db')
 Base = declarative_base()
 
 
+class Ecommerce(Base):
+    pass
+
+
+class Products(Base):
+    pass
+
+
 class EcommerceReviews(Base):
     __tablename__ = 'ecommerce_reviews'
 
@@ -28,7 +36,7 @@ class ReviewsCategory(Base):
     __tablename__ = 'reviews_category'
 
     id = Column(Integer, primary_key=True)
-    brand = Column(String)   # 品牌名
+    brand = Column(String)  # 品牌名
     source = Column(String)  # 電商來源
     product = Column(String)  # 產品名稱
     common = Column(String)  # 評論內容
