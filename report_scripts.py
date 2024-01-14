@@ -64,12 +64,4 @@ if __name__ == '__main__':
     print(sentiment_tags)
 '''
 
-# 計算 P/N 比
-def PN_ratio(positive, negative):
-    if negative == 0:
-        pn = '-'
-    elif negative != 0 and positive == 0:
-        pn = 0
-    else:
-        pn = round(positive / negative, 2)
-    return
+

@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-from report_scripts import match_topics, get_sentiment, PN_ratio
+from report_scripts import match_topics, get_sentiment
 import settings
 
 # 從資料庫拉出資料
@@ -62,9 +62,6 @@ sheet_1 = df.groupby(['source', 'brand']).agg({
 }).reset_index()
 
 # 計算 P/N 比
-
-# sheet_1['PN_ratio'] = ['sentiment_正面', 'sentiment_負面'].apply(PN_ratio)
-
 sheet_1['PN_ratio'] = sheet_1.apply(lambda row:
                                     '-' if row['sentiment_負面'] == 0
                                     else 0 if row['sentiment_正面'] == 0
