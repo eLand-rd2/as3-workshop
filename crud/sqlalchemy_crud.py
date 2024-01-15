@@ -2,15 +2,23 @@ import dataclasses
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import union_all
-from db.sqlalchemy_models import EcommerceReviews
-from db.sqlalchemy_models import ReviewsCategory
+from db.sqlalchemy_models import Brand
+from db.sqlalchemy_models import Product
+from db.sqlalchemy_models import Ecommerce
+from db.sqlalchemy_models import BrandRating
+from db.sqlalchemy_models import Rating
+from db.sqlalchemy_models import Reviews
+from db.sqlalchemy_models import Topic
+from db.sqlalchemy_models import Sentiment
+from db.sqlalchemy_models import Month
+
 
 
 @dataclasses.dataclass
 class EcommerceReviews:
     id: int
     brand: str
-    source: str
+    ecommerce: str
     product: str
     common: str
     rating: float
@@ -23,7 +31,7 @@ def create_review(session, review_data):
     rating = review_data.get('rating')
     month = review_data.get('month')
     brand = review_data.get('brand')
-    source = review_data.get('source')
+    ecommerce = review_data.get('ecommerce')
     product = review_data.get('product')
     reviews_text = review_data.get('reviews')
     sentiment = review_data.get('sentiment', "中立") #預設值 如果一開始再加入前沒有情緒跟TOPICS的話會套用預設值
@@ -39,8 +47,8 @@ def create_review(session, review_data):
     if not (isinstance(brand, str)):
         raise ValueError("Brand must be a string")
     # assert source is string
-    if not (isinstance(source, str)):
-        raise ValueError("Source must be a string")
+    if not (isinstance(ecommerce, str)):
+        raise ValueError("Ecommerce must be a string")
     # assert product is string
     if not (isinstance(product, str)):
         raise ValueError("Product must be a string")
