@@ -12,53 +12,89 @@ engine = create_engine('sqlite:///AS3_data.db')
 Base = declarative_base()
 
 
+class Brand(Base):
+    __tablename__ = 'brand'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    products = relationship('Product', back_populates='brand')
+    ecommerce = relationship('Ecommerce', back_populates='brands')
+    brand_rating = relationship('BrandRating', back_populates='brand')
+
+class Product(Base):
+    __tablename__ = 'product'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    brand_id = Column(Integer, ForeignKey('brand.id'))
+    brand = relationship('Brand', back_populates='products')
+    rating = relationship('Rating', back_populates='product')
+    reviews = relationship('Reviews', back_populates='product')
+
 class Ecommerce(Base):
-    pass
-
-
-class Products(Base):
-    pass
-
-
-class EcommerceReviews(Base):
-    __tablename__ = 'ecommerce_reviews'
-
+    __tablename__ = 'ecommerce'
     id = Column(Integer, primary_key=True)
-    brand = Column(String)  # 品牌名
-    source = Column(String)  # 電商來源
-    product = Column(String)  # 產品名稱
-    common = Column(String)  # 評論內容
-    rating = Column(Float)  # 產品星等
-    month = Column(Integer)  # 評論留言的發表月份
+    name = Column(String)
+    brand = relationship('Brand', back_populates='ecommerce')
 
-
-class ReviewsCategory(Base):
-    __tablename__ = 'reviews_category'
-
+class BrandRating(Base):
+    __tablename__ = 'brand_rating'
     id = Column(Integer, primary_key=True)
-    brand = Column(String)  # 品牌名
-    source = Column(String)  # 電商來源
-    product = Column(String)  # 產品名稱
-    common = Column(String)  # 評論內容
-    sent = Column(String)  # 評論的情緒
-    month = Column(Integer)  # 評論留言的發表月份
-    topic = Column(JSON)  # 評論內容命中的話題維度分類
+    rating = Column(Integer)
+    brand_id = Column(Integer, ForeignKey('brand.id'))
+    brand = relationship('Brand', back_populates='brand_rating')
 
-    # 因為資料表的維度是用list儲存，資料庫內的Col不能用list格式儲存 所以先將其轉換成JSON格式再儲存，JSON會比str通用
-    def set_topic(self, topic):  # set_topic 是用於資料庫存儲前的轉換
-        # 如果 topic 不是字串，則將其轉換為 JSON 字串
-        if not isinstance(topic, str):
-            self.topic = json.dumps(topic)
-        else:
-            self.topic = topic
+class Rating(Base):
+    __tablename__ = 'rating'
+    id = Column(Integer, primary_key=True)
+    value = Column(Integer)
+    product_id = Column(Integer, ForeignKey('product.id'))
+    product = relationship('Product', back_populates='rating')
 
-    def get_topic(self):  # get_topic 是用於資料庫讀取時的轉換
-        # 將 JSON 字串解析回列表
-        return json.loads(self.topic)
+class Reviews(Base):
+    __tablename__ = 'reviews'
+    id = Column(Integer, primary_key=True)
+    text = Column(String)
+    product_id = Column(Integer, ForeignKey('product.id'))
+    product = relationship('Product', back_populates='comments')
+    topics = Column(JSON)  # 將 topics 欄位的類型修改為 JSON
+    sentiment_id = Column(Integer, ForeignKey('sentiment.id'))
+    sentiment = relationship('Sentiment', back_populates='comments')
+
+class Topic(Base):
+    __tablename__ = 'topic'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+class Sentiment(Base):
+    __tablename__ = 'sentiment'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    reviews = relationship('Reviews', back_populates='sentiment')
+
+class Month(Base):
+    __tablename__ = 'month'
+    id = Column(Integer, primary_key=True)
+    brands = relationship('Brand', secondary='brand_month_association')
+    products = relationship('Product', secondary='product_month_association')
+
+# 中間表
+brand_month_association = Table('brand_month_association', Base.metadata,
+    Column('brand_id', Integer, ForeignKey('brand.id')),
+    Column('month_id', Integer, ForeignKey('month.id'))
+)
+
+product_month_association = Table('product_month_association', Base.metadata,
+    Column('product_id', Integer, ForeignKey('product.id')),
+    Column('month_id', Integer, ForeignKey('month.id'))
+)
+
+comment_topic_association = Table('reviews_topic_association', Base.metadata,
+    Column('reviews_id', Integer, ForeignKey('reviews.id')),
+    Column('topic_id', Integer, ForeignKey('topic.id'))
+)
 
 
-# 使用 Base.metadata.create_all(bind=engine) 來建立資料庫中的資料表
-Base.metadata.create_all(bind=engine)
+engine = create_engine('sqlite:///:memory:') #創建數據庫引擎
+Base.metadata.create_all(bind=engine) #建立資料庫中的資料表
 
 # 使用 sessionmaker 創建一個 Session 來進行資料庫操作，像是conn
 Session = sessionmaker(bind=engine)

@@ -18,76 +18,105 @@ class EcommerceReviews:
 
 
 # Create
-def create_review(session, brand, source, product, common, rating, month, sent, topic):
+def create_review(session, review_data):
+    # 檢查 review_data 中的值是否符合要求
+    rating = review_data.get('rating')
+    month = review_data.get('month')
+    brand = review_data.get('brand')
+    source = review_data.get('source')
+    product = review_data.get('product')
+    reviews_text = review_data.get('reviews')
+    sentiment = review_data.get('sentiment', "中立") #預設值 如果一開始再加入前沒有情緒跟TOPICS的話會套用預設值
+    topics = review_data.get('topics', "Nan")
+
     # assert rating in range(1, 6), and is float
     if not (isinstance(rating, float) and rating in range(1, 6)):
         raise ValueError("Rating must be a float between 1 and 5")
+    # assert month in range(1, 13), and is integer
+    if not (isinstance(month, int) and month in range(1, 13)):
+        raise ValueError("Month must be an integer between 1 and 12")
+    # assert brand is string
+    if not (isinstance(brand, str)):
+        raise ValueError("Brand must be a string")
+    # assert source is string
+    if not (isinstance(source, str)):
+        raise ValueError("Source must be a string")
+    # assert product is string
+    if not (isinstance(product, str)):
+        raise ValueError("Product must be a string")
+    # assert reviews_text is string
+    if not (isinstance(reviews_text, str)):
+        raise ValueError("Reviews must be a string")
+    # assert sentiment is string
+    if not (isinstance(sentiment, str)):
+        raise ValueError("Sentiment must be a string")
+    # assert topics is string
+    if not (isinstance(topics, str)):
+        raise ValueError("Topics must be a string")
 
-    try:
-        ecommerce_review = EcommerceReviews(brand=brand, source=source, product=product, common=common, rating=rating,
-                                            month=month)
-        reviews_category = ReviewsCategory(brand=brand, source=source, product=product, common=common, sent=sent,
-                                           month=month)
-        reviews_category.set_topic(topic)  # set_topic 是用於資料庫存儲前的轉換 如果topic是list就轉成JSON
+    # 創建 Reviews 實例
+    new_review = Reviews(
+        text=reviews_text,
+        topics=topics,
+        sentiment=Sentiment(name=sentiment),
+        product=Product(
+            name=product,
+            brand=Brand(name=brand),
+            rating=Rating(value=rating)
+        )
+    )
 
-        # Add objects to the session
-        session.add(ecommerce_review)
-        session.add(reviews_category)
+    # 提交更改
+    session.add(new_review)
+    session.commit()
 
-        # Commit the transaction
-        session.commit()
-        print("Review created successfully")
-        return EcommerceReviews(id=ecommerce_review.id, brand=ecommerce_review.brand,
-                                source=ecommerce_review.source, product=ecommerce_review.product,
-                                common=ecommerce_review.common, rating=ecommerce_review.rating,
-                                month=ecommerce_review.month)
-    except SQLAlchemyError as e:
-        session.rollback()
-        print(f"Failed to create review: {e}")
+    print("Reviews created successfully")
+
 
 
 # Read
-def get_reviews_by_brand(session, brand):
-    try:
-        ecommerce_reviews_query = session.query(EcommerceReviews).filter_by(brand=brand).all()
-        reviews_category_query = session.query(ReviewsCategory).filter_by(brand=brand).all()
+def read_reviews_by_brand(session, brand_name):
+    # 根據品牌名稱查詢相關的評論
+    reviews = session.query(Reviews).\
+        join(Product).join(Brand).\
+        filter(Brand.name == brand_name).all()
 
-        # 使用 union_all 將兩個查詢合併
-        combined_query = union_all(ecommerce_reviews_query, reviews_category_query)
+    return reviews
 
-        # 執行合併後的查詢
-        result = session.execute(combined_query).fetchall()
-        return ReviewsCategory(id=result.id, brand=result.brand, source=result.source, product=result.product,
-                               common=result.common, sent=result.sent, month=result.month, topic=result.topic)
+def read_reviews_by_month(session, target_month):
+    # 根據特定月份查詢相關的評論
+    reviews = session.query(Reviews).\
+        filter(extract('month', Reviews.timestamp) == target_month).all()
 
-
-    except SQLAlchemyError as e:
-        print(f"Failed to retrieve reviews: {e}")
-        return []
-
-
-def get_reviews_by_month(session, month) -> list[EcommerceReviews]:
-    try:
-        ecommerce_reviews_query = session.query(EcommerceReviews).filter_by(month=month).all()
-        reviews_category_query = session.query(ReviewsCategory).filter_by(month=month).all()
-
-        # 使用 union_all 將兩個查詢合併
-        combined_query = union_all(ecommerce_reviews_query, reviews_category_query)
-
-        # 執行合併後的查詢
-        result = session.execute(combined_query).fetchall()
-        return ReviewsCategory(id=result.id, brand=result.brand, source=result.source, product=result.product,
-                               common=result.common, sent=result.sent, month=result.month, topic=result.topic)
-
-    except SQLAlchemyError as e:
-        print(f"Failed to retrieve reviews: {e}")
-        return []
+    return reviews
 
 
 # Update
-def update_review_rating(session, review_id, new_rating):
-    pass
+def update_topics_and_sentiments(session, review_data):
+    for review_info in review_data:
+        review_text = review_info['text']
+        topics = review_info['topics']
+        sentiment_value = review_info['sentiment']
 
+        # 根據 review_text 查找相應的 Reviews
+        review = session.query(Reviews).filter_by(text=review_text).first()
+
+        if review:
+            # 更新 Topic
+            review.topics = topics
+
+            # 更新 Sentiment
+            sentiment = session.query(Sentiment).filter_by(name=sentiment_value).first()
+
+            if not sentiment:
+                sentiment = Sentiment(name=sentiment_value)
+
+            review.sentiment = sentiment
+
+            # 提交更改
+            session.commit()
+        else:
+            print(f"Review with text '{review_text}' not found.")
 
 # Delete
 def delete_review(session, review_id):
