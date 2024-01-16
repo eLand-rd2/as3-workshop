@@ -1,11 +1,8 @@
 import dataclasses
 from typing import List
 
-from db.sqlalchemy_models import Brand
-from db.sqlalchemy_models import Product
-from db.sqlalchemy_models import Reviews
-
 from db.schemas import ReviewsCreate, ReviewsUpdate
+from db.sqlalchemy_models import Reviews
 
 
 # Create
