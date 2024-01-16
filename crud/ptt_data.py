@@ -1,4 +1,7 @@
-def create(conn, database, data):
+from sqlalchemy.orm import Session
+
+
+def create(conn: Session, database, data):
     """
     在資料庫中新增資料。
 
@@ -35,7 +38,7 @@ def create(conn, database, data):
         conn.close()
 
 
-def retrieve(conn, database, filter=None):
+def retrieve(conn: Session, database, filter=None):
     """
         從資料庫中檢索資料。
 
@@ -65,9 +68,9 @@ def retrieve(conn, database, filter=None):
         return None
 
 
-def update(conn, data):
+def update(conn: Session, data):
     pass
 
 
-def delete(conn):
+def delete(conn: Session):
     pass

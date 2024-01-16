@@ -1,17 +1,10 @@
 import dataclasses
 
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import union_all
 from db.sqlalchemy_models import Brand
 from db.sqlalchemy_models import Product
-from db.sqlalchemy_models import Ecommerce
-from db.sqlalchemy_models import BrandRating
 from db.sqlalchemy_models import Rating
 from db.sqlalchemy_models import Reviews
-from db.sqlalchemy_models import Topic
 from db.sqlalchemy_models import Sentiment
-from db.sqlalchemy_models import Month
-
 
 
 @dataclasses.dataclass
@@ -34,7 +27,7 @@ def create_review(session, review_data):
     ecommerce = review_data.get('ecommerce')
     product = review_data.get('product')
     reviews_text = review_data.get('reviews')
-    sentiment = review_data.get('sentiment', "中立") #預設值 如果一開始再加入前沒有情緒跟TOPICS的話會套用預設值
+    sentiment = review_data.get('sentiment', "中立")  # 預設值 如果一開始再加入前沒有情緒跟TOPICS的話會套用預設值
     topics = review_data.get('topics', "Nan")
 
     # assert rating in range(1, 6), and is float
@@ -81,19 +74,19 @@ def create_review(session, review_data):
     print("Reviews created successfully")
 
 
-
 # Read
 def read_reviews_by_brand(session, brand_name):
     # 根據品牌名稱查詢相關的評論
-    reviews = session.query(Reviews).\
-        join(Product).join(Brand).\
+    reviews = session.query(Reviews). \
+        join(Product).join(Brand). \
         filter(Brand.name == brand_name).all()
 
     return reviews
 
+
 def read_reviews_by_month(session, target_month):
     # 根據特定月份查詢相關的評論
-    reviews = session.query(Reviews).\
+    reviews = session.query(Reviews). \
         filter(extract('month', Reviews.timestamp) == target_month).all()
 
     return reviews
@@ -125,6 +118,7 @@ def update_topics_and_sentiments(session, review_data):
             session.commit()
         else:
             print(f"Review with text '{review_text}' not found.")
+
 
 # Delete
 def delete_review(session, review_id):
