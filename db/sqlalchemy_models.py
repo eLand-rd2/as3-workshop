@@ -1,10 +1,11 @@
 # 使用 create_engine 函數建立到資料庫的連線
-import datetime
 
-from sqlalchemy import Column, Integer, String, JSON, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Table
 from sqlalchemy.orm import relationship
+# import auto now function
+from sqlalchemy.sql import func
 
 from db.database import Base
 
@@ -33,11 +34,13 @@ class Reviews(Base):
     id = Column(Integer, primary_key=True)
     text = Column(String)
     post_time = Column(DateTime)
+    rating = Column(Float)
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship('Product', back_populates='comments')
     topics = relationship('Topic', secondary='reviews_topic_association')
-    sentiment = Column(String)
-    created_at = Column(DateTime, default=datetime.datetime.now)
+
+    sentiment = Column(String, default='中立')
+    created_at = Column(DateTime, default=func.now())
 
 
 class Topic(Base):
