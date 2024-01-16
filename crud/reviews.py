@@ -1,7 +1,7 @@
 import dataclasses
 from typing import List
 
-from db.schemas import ReviewsCreate, ReviewsUpdate
+from schemas.review import ReviewsCreate, ReviewsUpdate
 from db.sqlalchemy_models import Reviews
 
 
@@ -14,6 +14,8 @@ def create_review(session, review_data: ReviewsCreate):
     session.commit()
 
     print("Reviews created successfully")
+
+    return new_review
 
 
 def read_reviews(session, filters=None,

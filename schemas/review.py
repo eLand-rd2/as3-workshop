@@ -2,23 +2,12 @@ import dataclasses
 from datetime import datetime
 from typing import Optional
 
-
-@dataclasses.dataclass
-class Brand:
-    id: int
-    name: str
-
-
-@dataclasses.dataclass
-class Product:
-    id: int
-    name: str
-    brand: Brand
+from schemas.product import ProductRead
 
 
 @dataclasses.dataclass
 class ReviewsCreate:
-    product: Product
+    product: 'ProductRead'
     text: str
     rating: float
     post_time: datetime
