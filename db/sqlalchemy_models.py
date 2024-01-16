@@ -4,6 +4,12 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Float, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
+from sqlalchemy import Table
+
+
+
 
 # SQLite 資料庫
 engine = create_engine('sqlite:///AS3_data.db')
