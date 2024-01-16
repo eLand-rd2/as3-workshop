@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+import dateutil.relativedelta
 from report_scripts import match_topics, get_sentiment
 import settings
 
@@ -19,12 +20,11 @@ df = pd.DataFrame(data)
 # 資料清理
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
-month_now = now.month  # 提取當前月份
+last_month = now+dateutil.relativedelta.relativedelta(months=-1) # 取的上個月的日期
+last_month = last_month.month
+
 df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
-if month_now == 1:
-    df = df[df['month'] == 12]
-else:
-    df = df[df['month'] == month_now - 1]
+df = df[df['month'] == last_month]
 
 # 將'rating'列轉為浮點數
 df['rating'] = df['rating'].astype(float)
@@ -126,10 +126,7 @@ sheet_4 = sheet_4.drop(columns=['level_2'])
 
 # 輸出報表
 # 檔案名稱
-if month_now == 1:
-    excel_filename = f'電商MonthlyReport_2023_{12}.xlsx'
-else:
-    excel_filename = f'電商MonthlyReport_2024_{month_now - 1}.xlsx'
+excel_filename = f'電商MonthlyReport_2023_{last_month}.xlsx'
 
 # 檔案儲存路徑
 # excel_file_path = settings.file_path

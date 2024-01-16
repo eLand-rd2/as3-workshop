@@ -6,6 +6,8 @@ import pandas as pd
 
 # 拉出還沒進行維度標記和情緒標記的rawdata
 
+
+
 # 進行維度標記，並儲存回去資料庫
 df['matched_topics'] = df['comment'].apply(match_topics)  # 維度標記
 # 維度標記轉為二進制
