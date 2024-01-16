@@ -125,11 +125,16 @@ sheet_4 = sheet_4.drop(columns=['level_2'])
 
 
 # 輸出報表
+# 檔案名稱
 if month_now == 1:
     excel_filename = f'電商MonthlyReport_2023_{12}.xlsx'
 else:
     excel_filename = f'電商MonthlyReport_2024_{month_now - 1}.xlsx'
 
+# 檔案儲存路徑
+# excel_file_path = settings.file_path
+
+# 檔案內容
 with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     # 將 sheet_1 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
     sheet_1.to_excel(writer, sheet_name='評論聲量總表', index=False, header=['來源', '品牌', '評論聲量', '當期平均星等', '正評數', '負評數', '中立數', 'P/N 比'])
@@ -138,10 +143,10 @@ with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     sheet_2.to_excel(writer, sheet_name='評論類別總表', index=False, header=['來源', '品牌', '討論類別', '正評數', '負評數', '中立數', 'P/N比'])
 
     # 將 sheet_3 寫入 Excel 檔案中的 'MOMO' 頁籤
-    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'])
+    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
     # 將 sheet_4 寫入 Excel 檔案中的 'Shopee' 頁籤
-    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'])
+    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
 
 
