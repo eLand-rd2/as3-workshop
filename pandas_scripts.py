@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+import dateutil.relativedelta
 from report_scripts import match_topics, get_sentiment
 import settings
 
@@ -19,12 +20,11 @@ df = pd.DataFrame(data)
 # 資料清理
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
-month_now = now.month  # 提取當前月份
+last_month = now+dateutil.relativedelta.relativedelta(months=-1) # 取的上個月的日期
+last_month = last_month.month
+
 df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
-if month_now == 1:
-    df = df[df['month'] == 12]
-else:
-    df = df[df['month'] == month_now - 1]
+df = df[df['month'] == last_month]
 
 # 將'rating'列轉為浮點數
 df['rating'] = df['rating'].astype(float)
@@ -125,11 +125,13 @@ sheet_4 = sheet_4.drop(columns=['level_2'])
 
 
 # 輸出報表
-if month_now == 1:
-    excel_filename = f'電商MonthlyReport_2023_{12}.xlsx'
-else:
-    excel_filename = f'電商MonthlyReport_2024_{month_now - 1}.xlsx'
+# 檔案名稱
+excel_filename = f'電商MonthlyReport_2023_{last_month}.xlsx'
 
+# 檔案儲存路徑
+# excel_file_path = settings.file_path
+
+# 檔案內容
 with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     # 將 sheet_1 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
     sheet_1.to_excel(writer, sheet_name='評論聲量總表', index=False, header=['來源', '品牌', '評論聲量', '當期平均星等', '正評數', '負評數', '中立數', 'P/N 比'])
@@ -138,10 +140,10 @@ with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     sheet_2.to_excel(writer, sheet_name='評論類別總表', index=False, header=['來源', '品牌', '討論類別', '正評數', '負評數', '中立數', 'P/N比'])
 
     # 將 sheet_3 寫入 Excel 檔案中的 'MOMO' 頁籤
-    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'])
+    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
     # 將 sheet_4 寫入 Excel 檔案中的 'Shopee' 頁籤
-    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'])
+    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
 
 

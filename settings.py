@@ -38,3 +38,5 @@ topics = {
 
 sentiment_api_url = 'https://nlpcore.eland.com.tw/deepnlp/api/sentiment'
 sentiment_api_key = 'b2kPGHkX.4xt8FSckldedMqsoX1zkduszDhOxqhC7'
+
+file_path = ''
