@@ -6,7 +6,9 @@ database = 'AS3_data.db'
 spider_target = [
     {
         "spider_class": MomoSpider,
-        "urls": []
+        "urls": [
+            'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index&kw=LANCOME%20%E8%98%AD%E8%94%BB'
+        ]
     },
     {
         "spider_class": ShopeeSpider,

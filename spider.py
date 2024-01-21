@@ -1,5 +1,5 @@
 import requests
-
+import re
 
 def get_ptt_data(ptt_url, ptt_headers: dict = None):
     if not ptt_headers:
@@ -28,8 +28,6 @@ if __name__ == '__main__':
     # parse html in response
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(ptt_response.text,features="html.parser")
-    print(soup.select('.board-label'))
-
-    #for entry in soup.select('.r-ent'):
-        #print(entry.select('.title')[0].text)
-        # save data to db
+    top_bar = soup.find_all('div', {'id': 'topbar'})
+    labels = top_bar[0].find_all('a')[1]
+    print(labels.text)
