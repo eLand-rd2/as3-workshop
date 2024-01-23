@@ -8,7 +8,14 @@ class ShopeeSpider(BaseSpider):
         return response
 
     def parse_page(self, response):
-        for rating in response['data']['ratings']:
-            comment = rating['comment']
 
-            return 'shopee data\n' + comment
+        stars = []
+        comments = []
+
+        for ratings_content in response['data']['ratings']:
+            star = ratings_content['rating_star']
+            stars.append(star)
+            comment = ratings_content['comment']
+            comments.append(comment)
+
+            return 'shopee data:'+ ''.join(stars) + ''.join(comments)

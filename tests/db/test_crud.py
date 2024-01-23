@@ -8,6 +8,7 @@ from schemas.brand import BrandRead
 from schemas.product import ProductRead
 from schemas.review import ReviewsCreate
 
+# pytest fixture
 
 class TestCrud:
     def __init__(self, _session: Session):
