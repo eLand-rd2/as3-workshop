@@ -12,14 +12,15 @@ spider_target = [
     },
     {
         "spider_class": ShopeeSpider,
-        "urls": []
+        "urls": [
+            'https://shopee.tw/api/v2/item/get_ratings?exclude_filter=1&filter=0&filter_size=0&flag=1&fold_filter=0&itemid=12394150289&limit=10&offset=0&relevant_reviews=false&request_source=2&shopid=779524889&tag_filter=&type=0&variation_filters='
+        ]
     },
     {
         "spider_class": PttSpider,
         'urls': [
-            'https://www.ptt.cc/bbs/MakeUp/index.html',
-            'https://www.ptt.cc/bbs/BeautySalon/index.html',
-            'https://www.ptt.cc/bbs/KoreaStar/index.html']
+            'https://www.ptt.cc/bbs/MakeUp/index.html'
+            ]
     }
 ]
 
