@@ -4,6 +4,14 @@ import datetime as dt
 
 schedule = Scheduler()
 
+def run_spider_task():
+# 從settings拿target_urls
+# 藉由CLICK取得爬文間隔、停止時間的參數
+# 建立schedule 依參數執行爬文任務
+
+def run_spider(target_urls):
+# 利用target_urls裡的爬文模組與目標網址取得爬文結果
+# 利用crud函式將結果寫進資料庫
 
 # 印出月報何時被執行的訊息
 def monthly_report(day):

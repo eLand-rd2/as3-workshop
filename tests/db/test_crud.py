@@ -14,6 +14,7 @@ from schemas.product import ProductRead
 from schemas.review import ReviewsCreate, ReviewsUpdate
 # 從schemas import class進來 如果不import進來會怎樣
 
+# pytest fixture
 
 class TestCrud:
     def __init__(self, _session: Session):
