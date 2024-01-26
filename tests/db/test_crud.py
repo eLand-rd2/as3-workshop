@@ -17,11 +17,21 @@ from schemas.review import ReviewsCreate, ReviewsUpdate
 # pytest fixture
 
 class TestCrud:
-    def __init__(self, _session: Session):
-        self.session = _session
+   # def __init__(self, _session: Session):
+   #      self.session = _session
+   #
+   #      self.brand = BrandRead(id=1, name='test')
+   #      self.product = ProductRead(id=1, name='test', brand=self.brand)
+
+
+    def setup_method(self):
+        self.session = get_session()
 
         self.brand = BrandRead(id=1, name='test')
         self.product = ProductRead(id=1, name='test', brand=self.brand)
+
+    def teardown_method(self):
+        self.session.close()
 
     def test_create(self):
         review_data = ReviewsCreate(
@@ -113,12 +123,28 @@ class TestCrud:
         assert result[0].product.brand == self.brand  # 確保品牌符合預期
 
     def test_update_topics_and_sentiments(self):
+        #創建一條既有的評論
+        review_data_1 = ReviewsCreate(
+            product=self.product,
+            text='test1',
+            rating=5.0,
+            post_time=datetime.datetime.strptime("2023-12-24 12:00:00",
+                                                 "%Y-%m-%d %H:%M:%S"),
+            sentiment='中立',
+            topics=None
+        )
+        existing_review = create_review(self.session, review_data_1)
+        # 創建用來更新的資訊
         review_data_renew = ReviewsUpdate(
+            id=existing_review.id,
             text='test1',
             sentiment='負面',
             topics='價格'
         )
+        # 調用被測試的 read_reviews_by_post_time 函式
         result = update_topics_and_sentiments(self.session, review_data_renew)
+
+        # 進行斷言，確保擷取的評論數量和內容符合預期
         assert result.text == 'test1'
         assert result.sentiment == '負面'
         assert result.topics == '價格'
@@ -126,6 +152,10 @@ class TestCrud:
     def test_delete(self):
         pass
 
+
+# # If you run this file directly, execute the tests
+# if __name__ == '__main__':
+#     pytest.main([__file__])
 
 if __name__ == '__main__':
     with get_session() as session:

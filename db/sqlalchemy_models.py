@@ -36,7 +36,7 @@ class Reviews(Base):
     post_time = Column(DateTime)
     rating = Column(Float)
     product_id = Column(Integer, ForeignKey('product.id'))
-    product = relationship('Product', back_populates='comments')
+    product = relationship('Product', back_populates='reviews')
     topics = relationship('Topic', secondary='reviews_topic_association')
 
     sentiment = Column(String, default='中立')
