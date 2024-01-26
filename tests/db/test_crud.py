@@ -30,9 +30,6 @@ class TestCrud:
         self.brand = BrandRead(id=1, name='test')
         self.product = ProductRead(id=1, name='test', brand=self.brand)
 
-    def teardown_method(self):
-        self.session.close()
-
     def test_create(self):
         review_data = ReviewsCreate(
             product=self.product,
@@ -152,6 +149,8 @@ class TestCrud:
     def test_delete(self):
         pass
 
+    def teardown_method(self):
+        self.session.close()
 
 # # If you run this file directly, execute the tests
 # if __name__ == '__main__':
