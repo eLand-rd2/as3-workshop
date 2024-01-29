@@ -1,3 +1,5 @@
+**/*.db
+
 .idea
 .idea/misc.xml
 ### JetBrains template

@@ -1,6 +1,6 @@
 import dataclasses
 
-from db.sqlalchemy_models import Brand
+from db.models import Brand
 from schemas.brand import BrandCreate
 
 

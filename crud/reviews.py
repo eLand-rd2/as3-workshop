@@ -2,12 +2,12 @@ import dataclasses
 from typing import List
 
 from schemas.review import ReviewsCreate, ReviewsUpdate
-from db.sqlalchemy_models import Reviews
+from db.models import Review
 
 
 # Create
 def create_review(session, review_data: ReviewsCreate):
-    new_review = Reviews(**dataclasses.asdict(review_data))
+    new_review = Review(**dataclasses.asdict(review_data))
 
     # 提交更改
     session.add(new_review)
@@ -22,7 +22,7 @@ def read_reviews(session, filters=None,
                  order_by=None,
                  limit=None, offset=None):
     # 根據條件查詢評論
-    reviews = session.query(Reviews).filter_by(**filters).order_by(order_by).limit(limit).offset(offset).all()
+    reviews = session.query(Review).filter_by(**filters).order_by(order_by).limit(limit).offset(offset).all()
 
     return reviews
 
@@ -52,7 +52,7 @@ def update_topics_and_sentiments(session, review_data_rows: List[ReviewsUpdate])
         sentiment_value = review_data.sentiment
 
         # 根據 id 查找相應的 Reviews
-        review_in_db = session.query(Reviews).get(review_data.id)
+        review_in_db = session.query(Review).get(review_data.id)
 
         if review_in_db:
             review_in_db.topics = topics

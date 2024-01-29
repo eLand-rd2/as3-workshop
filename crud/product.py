@@ -1,6 +1,6 @@
 import dataclasses
 
-from db.sqlalchemy_models import Product
+from db.models import Product
 from schemas.product import ProductCreate
 
 
