@@ -1,36 +1,49 @@
+from db.database import get_session
 import pandas as pd
 from datetime import datetime
 import dateutil.relativedelta
 from report_scripts import match_topics, get_sentiment
 import settings
 
+
 # 從資料庫拉出資料
-data = {
-    'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
-    'brand': ['Lan', 'Lan', 'LRP', 'LRP', 'LRP', 'Cerave', 'Lan', 'Lan', 'Lan', 'LOAP', 'LOAP'],
-    'product': ['小黑瓶', '小黑瓶', '萬能霜', '萬能霜', '抗痘凝膠', 'PM乳', '小黑瓶', '零粉感', '零粉感', '紫熨斗', '紫熨斗'],
-    'reviews': ['服務很好，價格也很便宜', '服務很不好，價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
-    'rating': ['3', '5', '2', '3', '4', '5', '5', '4', '3', '5', '1'],
-    'month': ['12', '12', '12', '12', '12', '12', '12', '12', '12', '12', '12']
-}
-df = pd.DataFrame(data)
+# data = {
+#     'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
+#     'brand': ['Lan', 'Lan', 'LRP', 'LRP', 'LRP', 'Cerave', 'Lan', 'Lan', 'Lan', 'LOAP', 'LOAP'],
+#     'product': ['小黑瓶', '小黑瓶', '萬能霜', '萬能霜', '抗痘凝膠', 'PM乳', '小黑瓶', '零粉感', '零粉感', '紫熨斗', '紫熨斗'],
+#     'reviews': ['服務很好，價格也很便宜', '服務很不好，價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
+#     'rating': ['3', '5', '2', '3', '4', '5', '5', '4', '3', '5', '1'],
+#     'month': ['12', '12', '12', '12', '12', '12', '12', '12', '12', '12', '12']
+# }
+# df = pd.DataFrame(data)
 
-
-
-# 資料清理  # 待刪
-df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
-df['rating'] = df['rating'].astype(float)  # 將'rating'列轉為浮點數
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
 last_month = now+dateutil.relativedelta.relativedelta(months=-1)  # 取的上個月的日期
 last_year = last_month.year
 last_month = last_month.month
-df = df[df['month'] == last_month]  # 取得上個月的資料
+
+# 建立db連線
+session = get_session()
+try:
+    # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
+    query_result = session.query(YourModel).filter(YourModel.month == last_month).all()
+    # 將查詢結果轉換為 Pandas DataFrame
+    df = pd.read_sql(query_result.statement, session.bind)
+except Exception as e:
+    print(f"Error fetching data from database: {str(e)}")
+finally:
+    session.close()  # 關閉會話
+
+# 資料清理  # 待刪
+df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
+df['rating'] = df['rating'].astype(float)  # 將'rating'列轉為浮點數
 
 
 # 維度標記
 df['matched_topics'] = df['reviews'].apply(match_topics)  # 待刪
 df['matched_topics'] = df['matched_topics'].apply(lambda x: '、'.join(x))
+
 # 維度標記轉為二進制
 topics = settings.topics
 for topic in topics:
