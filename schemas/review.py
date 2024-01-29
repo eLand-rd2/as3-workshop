@@ -1,30 +1,28 @@
-import dataclasses
+from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-from schemas.product import ProductRead
 
-
-@dataclasses.dataclass
-class ReviewsCreate:
-    product: 'ProductRead'
+class ReviewBase(BaseModel):
     text: str
     rating: float
+    sentiment: Optional[str] = '中立'
     post_time: datetime
-    sentiment: Optional[str] = '中立'
-    topics: Optional[list[str]] = None
-
-    # validate rating, should be float and between 1 and 5
-    def __post_init__(self):
-        if not (isinstance(self.rating, float) and self.rating in range(1, 6)):
-            raise ValueError("Rating must be a float between 1 and 5")
-        if not (isinstance(self.post_time, datetime)):
-            raise ValueError("Post time must be a datetime object")
 
 
-@dataclasses.dataclass
-class ReviewsUpdate:
+class ReviewCreate(ReviewBase):
+    product_id: int
+
+
+class ReviewUpdate(BaseModel):
+    text: Optional[str] = None
+    rating: Optional[float] = None
+    sentiment: Optional[str] = None
+    post_time: Optional[datetime] = None
+
+class ReviewRead(ReviewBase):
     id: int
-    text: str
-    topics: Optional[list[str]] = None
-    sentiment: Optional[str] = '中立'
+    product: 'ProductBase'
+
+    class Config:
+        orm_mode = True

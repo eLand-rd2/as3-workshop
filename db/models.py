@@ -27,12 +27,12 @@ class Product(Base):
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
 
 
-class ReviewsTopicAssociation(Base):
-    __tablename__ = 'reviews_topic_association'
+class ReviewTopicAssociation(Base):
+    __tablename__ = 'review_topic_association'
     review_id = mapped_column(ForeignKey('reviews.id'), primary_key=True)
     topic_id = mapped_column(ForeignKey('topic.id'), primary_key=True)
-    review: Mapped['Review'] = relationship(back_populates='topics')
-    topic: Mapped['Topic'] = relationship(back_populates='reviews')
+    review: Mapped['Review'] = relationship(back_populates='topic_associations')
+    topic: Mapped['Topic'] = relationship(back_populates='review_associations')
 
 
 class Review(Base):
@@ -46,7 +46,12 @@ class Review(Base):
 
     product_id: Mapped[int] = mapped_column(ForeignKey('product.id'))
     product: Mapped['Product'] = relationship(back_populates='reviews')
-    topics: Mapped[List['ReviewsTopicAssociation']] = relationship(
+    topics: Mapped[List['Topic']] = relationship(
+        secondary='review_topic_association',
+        back_populates='reviews'
+    )
+    topic_associations: Mapped[List['ReviewTopicAssociation']] = relationship(
+        'ReviewTopicAssociation',
         back_populates='review'
     )
 
@@ -56,6 +61,12 @@ class Topic(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
 
-    reviews: Mapped[List['ReviewsTopicAssociation']] = relationship(
+    reviews: Mapped[List['Review']] = relationship(
+        secondary='review_topic_association',
+        back_populates='topics'
+    )
+
+    review_associations: Mapped[List['ReviewTopicAssociation']] = relationship(
+        'ReviewTopicAssociation',
         back_populates='topic'
     )

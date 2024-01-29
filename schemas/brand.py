@@ -1,25 +1,27 @@
-import dataclasses
+from pydantic import BaseModel
+from typing import Optional, List
 
 
-@dataclasses.dataclass
-class BrandRead:
-    id: int
+# 基本模型
+class BrandBase(BaseModel):
     name: str
-    ecommerce: str
-    # 如果我想要把momo跟蝦皮上對應品牌的code value 加入資料表中一起存
-    # value: str
+    ecommerce: Optional[str] = None
 
 
-@dataclasses.dataclass
-class BrandCreate:
-    name: str
-    ecommerce: str = None
-    # value: str
+# 創建模型
+class BrandCreate(BrandBase):
+    pass
 
 
-@dataclasses.dataclass
-class BrandUpdate:
+# 更新模型
+class BrandUpdate(BaseModel):
+    name: Optional[str] = None
+    ecommerce: Optional[str] = None
+
+
+# 閱讀模型
+class BrandRead(BrandBase):
     id: int
-    name: str = None
-    ecommerce: str = None
-    # value: str
+
+    class Config:
+        orm_mode = True

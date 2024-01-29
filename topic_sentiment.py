@@ -3,7 +3,7 @@ from report_scripts import match_topics, get_sentiment
 import pandas as pd
 from datetime import datetime
 import dateutil.relativedelta
-from crud.reviews import update_topics_and_sentiments
+from crud.review import update_topics_and_sentiments
 
 # 呼叫並連接資料庫
 df = {}

@@ -1,25 +1,36 @@
-import dataclasses
+from sqlalchemy.orm import Session
 
 from db.models import Product
-from schemas.product import ProductCreate
+from schemas.product import ProductCreate, ProductUpdate
 
 
-def create_product(session, product_data: ProductCreate):
-    new_product = Product(**dataclasses.asdict(product_data))
-
-    # 提交更改
-    session.add(new_product)
-    session.commit()
-
-    print("Product created successfully")
-
-    return new_product
+def create_product(db: Session, product: ProductCreate):
+    db_product = Product(**product.model_dump())
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
 
 
-def read_products(session, filters=None,
-                  order_by=None,
-                  limit=None, offset=None):
-    # 根據條件查詢評論
-    products = session.query(Product).filter_by(**filters).order_by(order_by).limit(limit).offset(offset).all()
+def get_product(db: Session, product_id: int):
+    return db.query(Product).filter(Product.id == product_id).first()
 
-    return products
+
+def update_product(db: Session, product_id: int, product: ProductUpdate):
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+    if db_product:
+        update_data = product.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_product, key, value)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    return None
+
+
+def delete_product(db: Session, product_id: int):
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+    if db_product:
+        db.delete(db_product)
+        db.commit()
+    return {"msg": "Product deleted"}

@@ -1,23 +1,30 @@
-import dataclasses
+from pydantic import BaseModel
+from typing import Optional
 
-from schemas.brand import BrandRead
 
-
-@dataclasses.dataclass
-class ProductRead:
-    id: int
+# Product 基本模型
+class ProductBase(BaseModel):
     name: str
-    brand: 'BrandRead'
+    rating: Optional[float] = 3.0
 
 
-@dataclasses.dataclass
-class ProductCreate:
-    name: str
+# 用于创建新产品的模型
+class ProductCreate(ProductBase):
     brand_id: int
 
 
-@dataclasses.dataclass
-class ProductUpdate:
+# 用于更新产品的模型
+class ProductUpdate(ProductBase):
+    name: Optional[str] = None
+    rating: Optional[float] = None
+    brand_id: Optional[int] = None
+
+
+# 用于读取产品信息的模型，包含嵌套的 Brand
+class ProductRead(ProductBase):
     id: int
-    name: str
-    brand_id: int
+    brand: 'BrandBase'
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
