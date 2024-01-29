@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from db.models import Review, Topic, ReviewTopicAssociation
-from schemas.review import ReviewCreate, ReviewUpdate, ReviewRead  # 替换为您的 Pydantic 模型的实际路径
+
+from db.models import Review, Topic
+from schemas.review import ReviewCreate, ReviewUpdate
 
 
 def create_review(db: Session, review: ReviewCreate):

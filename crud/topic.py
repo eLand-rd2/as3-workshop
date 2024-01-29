@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from db.models import Topic
-from schemas.topic import TopicCreate, TopicUpdate, TopicRead  # 替换为您的 Pydantic 模型的实际路径
+from schemas.topic import TopicCreate, TopicUpdate
 
 
 def create_topic(db: Session, topic: TopicCreate):
