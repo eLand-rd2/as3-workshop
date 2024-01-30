@@ -62,10 +62,10 @@ def payload():
 def test_create_product_with_brand(db_session, payload):
     for product in payload:
         product_in_db = get_product(db_session, product_id=product['id'])
-        if not product_in_db:
+        if product_in_db is None:
             brand_id = product['brand']['id']
             brand_in_db = get_brand(db_session, brand_id=brand_id)
-            if not brand_in_db:
+            if brand_in_db is None:
                 brand_payload = product['brand'].copy()
                 brand = BrandCreate(**brand_payload)
                 brand_in_db = create_brand(db_session, brand)
@@ -92,10 +92,10 @@ def test_create_product_with_brand(db_session, payload):
 def test_create_review_with_product(db_session, payload):
     for product in payload:
         product_in_db = get_product(db_session, product_id=product['id'])
-        if not product_in_db:
+        if product_in_db is None:
             brand_id = product['brand']['id']
             brand_in_db = get_brand(db_session, brand_id=brand_id)
-            if not brand_in_db:
+            if brand_in_db is None:
                 brand_payload = product['brand'].copy()
                 brand = BrandCreate(**brand_payload)
                 brand_in_db = create_brand(db_session, brand)
@@ -105,7 +105,7 @@ def test_create_review_with_product(db_session, payload):
             create_product(db_session, product_create)
         for review in product['reviews']:
             review_in_db = get_review(db_session, review_id=review['id'])
-            if not review_in_db:
+            if review_in_db is None:
                 review_payload = review.copy()
                 review_payload['product_id'] = product_in_db.id
                 review_create = ReviewCreate(**review_payload)
