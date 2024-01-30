@@ -28,11 +28,21 @@ class MomoSpider(BaseSpider):
     def parse_page(self, response):
         soup = BeautifulSoup(response, 'html.parser')
         comments = []
-        class_name = soup.find_all('div', {'class': 'reviewCard'})
+        brand_names = []
+        star_ratings = []
+        comment_contents = soup.find_all('div', {'class': 'reviewCard'})
+        brand_elements = soup.find_all('div',{'id':'bt_2_layout_NAV'})
 
-        for comments_content in class_name:
-            comment = comments_content.select('.CommentContainer')
+
+        for brand_element in brand_elements:
+            brand_name = brand_element.find('h1').text
+            brand_names.append(brand_name)
+
+        for comment_content in comment_contents:
+            comment = comment_content.select('.CommentContainer')[0].text
             comments.append(comment)
 
-        return 'momodata:\n' + '\n'.join(comments)
+
+
+        return 'momodata:\n' + '\n'.join(brand_names) + '\n'.join(comments)
 

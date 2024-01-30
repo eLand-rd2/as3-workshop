@@ -18,4 +18,4 @@ class ShopeeSpider(BaseSpider):
             comment = ratings_content['comment']
             comments.append(comment)
 
-            return 'shopee data:'+ ''.join(stars) + ''.join(comments)
+            return 'shopee data:'+ '\n'.join(str(star) for star in stars) + '\n'.join(comments)
