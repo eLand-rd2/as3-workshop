@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+import settings
 import time
 
 class MomoSpider(BaseSpider):
@@ -27,16 +28,11 @@ class MomoSpider(BaseSpider):
     def parse_page(self, response):
         soup = BeautifulSoup(response, 'html.parser')
         comments = []
-        class_name = soup.find_all('div',{'class':'reviewCard'})
+        class_name = soup.find_all('div', {'class': 'reviewCard'})
 
         for comments_content in class_name:
-            comment = comments_content.select('.CommentContainer')[0].text
+            comment = comments_content.select('.CommentContainer')
             comments.append(comment)
+
         return 'momodata:\n' + '\n'.join(comments)
-
-        #class_name = response.find_elements(By.CLASS_NAME, 'reviewCard')
-
-        #for comment in class_name:
-            #print(comment.find_element(By.CLASS_NAME, 'CommentContainer').text)
-
 

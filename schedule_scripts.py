@@ -1,5 +1,8 @@
 from scheduler import Scheduler
+import schedule
 import time
+from datetime import datetime, timedelta
+import click
 import datetime as dt
 
 import settings
@@ -15,14 +18,26 @@ def load_class(full_path):
     return getattr(mod, cls)
 
 
-def run_spider_task():
+def run_spider_task(interval, stop_time):
     # 從settings拿target_urls
-    # 藉由CLICK取得爬文間隔、停止時間的參數
-    # 建立schedule 依參數執行爬文任務
     targets = settings.spider_target
-    for target in targets:
-        run_spider(target)
 
+    # 藉由CLICK取得爬文間隔、停止時間的參數
+    interval = 86400 #一天 86,400 秒
+    stop_time = 180 #三小時 180 秒
+    click.echo(f'Starting scraping tasks with an interval of {interval} seconds.')
+    click.echo(f'Stopping scraping tasks after {stop_time} seconds.')
+
+    # 建立 schedule 依參數執行爬文任務
+    schedule.every().day.at("10:00").do(run_spider)
+
+    # 任務無限迴圈檢查
+    while True:
+        schedule.run_pending()
+        time.sleep(60)  # 每分鐘檢查是否執行
+
+        for target in targets:
+            run_spider(target)
 
 def run_spider(target):
     # 利用target_urls裡的爬文模組與目標網址取得爬文結果
