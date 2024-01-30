@@ -1,21 +1,29 @@
-from db.database import get_session
 import pandas as pd
 from datetime import datetime
 import dateutil.relativedelta
 from report_scripts import match_topics, get_sentiment
 import settings
+from sqlalchemy import extract
+from db.database import get_session
+# from your_module import YourModel
 
-
+'''
 # 從資料庫拉出資料
-# data = {
-#     'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
-#     'brand': ['Lan', 'Lan', 'LRP', 'LRP', 'LRP', 'Cerave', 'Lan', 'Lan', 'Lan', 'LOAP', 'LOAP'],
-#     'product': ['小黑瓶', '小黑瓶', '萬能霜', '萬能霜', '抗痘凝膠', 'PM乳', '小黑瓶', '零粉感', '零粉感', '紫熨斗', '紫熨斗'],
-#     'reviews': ['服務很好，價格也很便宜', '服務很不好，價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
-#     'rating': ['3', '5', '2', '3', '4', '5', '5', '4', '3', '5', '1'],
-#     'month': ['12', '12', '12', '12', '12', '12', '12', '12', '12', '12', '12']
-# }
-# df = pd.DataFrame(data)
+data = {
+    'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
+    'brand': ['Lan', 'Lan', 'LRP', 'LRP', 'LRP', 'Cerave', 'Lan', 'Lan', 'Lan', 'LOAP', 'LOAP'],
+    'product': ['小黑瓶', '小黑瓶', '萬能霜', '萬能霜', '抗痘凝膠', 'PM乳', '小黑瓶', '零粉感', '零粉感', '紫熨斗', '紫熨斗'],
+    'reviews': ['服務很好，價格也很便宜', '服務很不好，價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
+    'rating': ['3', '5', '2', '3', '4', '5', '5', '4', '3', '5', '1'],
+    'month': ['12', '12', '12', '12', '12', '12', '12', '12', '12', '12', '12']
+}
+df = pd.DataFrame(data)
+
+# 資料清理  # 待刪
+df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
+df['rating'] = df['rating'].astype(float)  # 將'rating'列轉為浮點數
+'''
+
 
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
@@ -27,7 +35,12 @@ last_month = last_month.month
 session = get_session()
 try:
     # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
-    query_result = session.query(YourModel).filter(YourModel.month == last_month).all()
+    query_result = (
+        session.query(as3_data)
+        .filter(extract('year', as3_data.post_time) == last_year)
+        .filter(extract('month', as3_data.post_time) == last_month)
+        .all()
+    )
     # 將查詢結果轉換為 Pandas DataFrame
     df = pd.read_sql(query_result.statement, session.bind)
 except Exception as e:
@@ -35,31 +48,27 @@ except Exception as e:
 finally:
     session.close()  # 關閉會話
 
-# 資料清理  # 待刪
-df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
-df['rating'] = df['rating'].astype(float)  # 將'rating'列轉為浮點數
 
 
 # 維度標記
-df['matched_topics'] = df['reviews'].apply(match_topics)  # 待刪
-df['matched_topics'] = df['matched_topics'].apply(lambda x: '、'.join(x))
-
+# df['topic'] = df['reviews'].apply(match_topics)  # 待刪
+df['topic'] = df['topic'].apply(lambda x: '、'.join(x))
 # 維度標記轉為二進制
 topics = settings.topics
 for topic in topics:
-    df[topic] = df['matched_topics'].apply(lambda x: 1 if topic in x else 0)
+    df[topic] = df['topic'].apply(lambda x: 1 if topic in x else 0)
 
 
-# 情緒標記  # 待刪
-docs = df['reviews']
-sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
-#只擷取 sentiment_tag 的值
-sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
-sentiment_tags_series = pd.Series(sentiment_tags, name='sentiment_tag')
-df = pd.concat([df, sentiment_tags_series], axis=1)
+# 進行情緒標記
+# docs = df['reviews']
+# sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
+# #只擷取 sentiment_tag 的值
+# sentiment = [result[0]['data'][0]['sentiment_tag']for result in sentiment_all]
+# sentiment_series = pd.Series(sentiment, name='sentiment')
+# df = pd.concat([df, sentiment_series], axis=1)
 
 # 拆解 sentiment 欄位成 positve, negative, neutral三個欄位
-sentiment_dummies = pd.get_dummies(df['sentiment_tag'], prefix='sentiment', dtype=int)
+sentiment_dummies = pd.get_dummies(df['sentiment'], prefix='sentiment', dtype=int)
 df = pd.concat([df, sentiment_dummies], axis=1)
 
 
@@ -110,19 +119,19 @@ sheet_2 = sheet_2.sort_values(by=['ecommerce', 'brand'], key=lambda x: x.str.low
 
 # sheet 3 : momo來源中，各品牌產品的評論內容$各評論之星等
 momo_df = df[df['ecommerce'] == 'momo']    # 篩選 source = momo 的資料
-sheet_3 = momo_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment_tag', 'matched_topics']].reset_index(drop=True)).reset_index()
+sheet_3 = momo_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'matched']].reset_index(drop=True)).reset_index()
 sheet_3 = sheet_3.drop(columns=['level_2'])
 sheet_3['Group'] = "L'Oreal"  # 新增Group欄位
-sheet_3 = sheet_3[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment_tag', 'matched_topics']]  # 重新排序欄位
+sheet_3 = sheet_3[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_3 = sheet_3.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
 # sheet_4 : shopee來源中，各品牌產品的評論內容$各評論之星等
 shopee_df = df[df['ecommerce'] == 'shopee']    # 篩選 source = shopee 的資料
-sheet_4 = shopee_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment_tag', 'matched_topics']].reset_index(drop=True)).reset_index()
+sheet_4 = shopee_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'matched']].reset_index(drop=True)).reset_index()
 sheet_4 = sheet_4.drop(columns=['level_2'])
 sheet_4['Group'] = "L'Oreal"  # 新增Group欄位
-sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment_tag', 'matched_topics']]  # 重新排序欄位
+sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'matched']]  # 重新排序欄位
 sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
