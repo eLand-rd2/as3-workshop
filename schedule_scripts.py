@@ -7,8 +7,6 @@ import datetime as dt
 
 import settings
 
-schedule = Scheduler()
-
 
 # load class from path string
 def load_class(full_path):
@@ -18,26 +16,29 @@ def load_class(full_path):
     return getattr(mod, cls)
 
 
-def run_spider_task(interval, stop_time):
+def run_spider_task():
     # 從settings拿target_urls
     targets = settings.spider_target
 
     # 藉由CLICK取得爬文間隔、停止時間的參數
-    interval = 86400 #一天 86,400 秒
-    stop_time = 180 #三小時 180 秒
-    click.echo(f'Starting scraping tasks with an interval of {interval} seconds.')
-    click.echo(f'Stopping scraping tasks after {stop_time} seconds.')
+    # interval = 86400 #一天 86,400 秒
+    # stop_time = 180 #三小時 180 秒
+    # click.echo(f'Starting scraping tasks with an interval of {interval} seconds.')
+    # click.echo(f'Stopping scraping tasks after {stop_time} seconds.')
 
     # 建立 schedule 依參數執行爬文任務
-    schedule.every().day.at("10:00").do(run_spider)
-
+    schedule.every().day.at("10:00").do(run_spiders, targets)
+    print('每天早上10:00執行爬文')
     # 任務無限迴圈檢查
     while True:
         schedule.run_pending()
         time.sleep(60)  # 每分鐘檢查是否執行
 
-        for target in targets:
-            run_spider(target)
+def run_spiders(targets):
+    for target in targets:
+        print('執行爬文' + target)
+        run_spider(target)
+
 
 def run_spider(target):
     # 利用target_urls裡的爬文模組與目標網址取得爬文結果
@@ -65,6 +66,15 @@ def schedule_start_monthly_report(day, hour):
         'day': day
     })
 
+def run_greet_task():
+    def greet(name):
+        print('Hello', name)
+
+    schedule.every(2).seconds.do(greet, name='Alice')
+    schedule.every(4).seconds.do(greet, name='Bob')
+    while True:
+        schedule.run_pending()
+        time.sleep(1)  # 每分鐘檢查是否執行
 
 if __name__ == '__main__':
 
