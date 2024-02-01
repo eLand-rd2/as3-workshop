@@ -1,21 +1,26 @@
 import click
 
 import settings
+from schedule_scripts import run_spider_task, run_greet_task
+@click.command()
 
+def greet():
+    run_greet_task()
 
 # run periodic task
 @click.command()
 def run_spider():
-    """Run periodic task."""
-    TARGETS = settings.spider_target
-    for target in TARGETS:
-        spider_cls = target['spider_class']
-        target_url_list = target['urls']
-
-        spider = spider_cls()
-
-        for target_url in target_url_list:
-            spider.run(target_url)
+    run_spider_task()
+    # """Run periodic task."""
+    # TARGETS = settings.spider_target
+    # for target in TARGETS:
+    #     spider_cls = target['spider_class']
+    #     target_url_list = target['urls']
+    #
+    #     spider = spider_cls()
+    #
+    #     for target_url in target_url_list:
+    #         spider.run(target_url)
 
 
 # run generate report task
@@ -41,6 +46,7 @@ def cli():
 # Add commands to the group
 cli.add_command(run_spider)
 cli.add_command(generate_report)
+cli.add_command(greet)
 
 if __name__ == '__main__':
     cli()

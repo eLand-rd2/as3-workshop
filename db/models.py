@@ -27,7 +27,7 @@ class Product(Base):
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
 
 
-class ReviewTopicAssociation(Base):
+class ReviewTopicAssociation(Base): # 用於建立reviews & topics 之間的多對多關係
     __tablename__ = 'review_topic_association'
     review_id = mapped_column(ForeignKey('reviews.id'), primary_key=True)
     topic_id = mapped_column(ForeignKey('topic.id'), primary_key=True)
