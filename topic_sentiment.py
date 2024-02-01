@@ -32,13 +32,10 @@ df = df[df['month'] == last_month]  # 取得上個月的資料
 # process sentiment/ process topic
 # 平移、結束
 
-# 呼叫並連接資料庫
-# 篩選月份
+
+
 def process_reviews(begin, end):
-    now = datetime.now()  # 取得當前日期和時間
-    last_month = now+dateutil.relativedelta.relativedelta(months=-1)  # 取的上個月的日期
-    last_year = last_month.year
-    last_month = last_month.month
+
     # 建立db連線
     session = get_session()
     try:
@@ -46,7 +43,7 @@ def process_reviews(begin, end):
         query_result = get_reviews(session, begin=begin, end=end, limit=limit, offset=offset)
         process_sentiment(query_result)
         process_topic(query_result)
-        # 將查詢結果轉換為 Pandas DataFrame
+
     except Exception as e:
         print(f"Error fetching data from database: {str(e)}")
 
@@ -78,3 +75,8 @@ def process_sentiment(reviews):
 
 def process_topic(reviews):
     pass
+
+if __name__ == '__main__':
+    now = datetime.now()  # 取得當前日期和時間
+    yesterday = now - dateutil.relativedelta(days=1)  # 取的昨天的日期
+    process_reviews(yesterday, yesterday)
