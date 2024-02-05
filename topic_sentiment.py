@@ -5,13 +5,13 @@ from datetime import datetime
 import dateutil.relativedelta
 from schemas.topic import TopicCreate
 from crud.topic import create_topic, get_topic_name
-from schemas.review import ReviewUpdate
-from crud.review import update_review, get_reviews, append_topic
+from crud.review import get_reviews, append_topic
 from crud.product import get_products
 from crud.category import create_category, get_category_name
 from schemas.category import CategoryCreate
 from crud.sentiment import create_sentiment, get_sentiment_name
 from schemas.sentiment import SentimentCreate
+import click
 
 
 '''
@@ -38,7 +38,7 @@ df = df[df['month'] == last_month]  # 取得上個月的資料
 # 平移、結束
 
 
-
+@click.command()
 def process_reviews(begin, end, page_size=100):
 
     # 建立db連線
@@ -68,7 +68,7 @@ def process_reviews(begin, end, page_size=100):
     finally:
         session.close()  # 關閉會話
 
-
+@click.command()
 def process_products(page_size=100):
     # 建立db連線
     session = get_session()
@@ -165,10 +165,15 @@ def process_topic(reviews):
                 append_topic(review_id=review_id, topic_id=topic_in_db.id)
 
 
+@click.group()
+def cli():
+    pass
+
+cli.add_command(process_products)
+cli.add_command(process_reviews)
+
 
 if __name__ == '__main__':
-     now = datetime.now()  # 取得當前日期和時間
-     last_month = now - dateutil.relativedelta(months=1)  # 取得上個月的月份
-     process_reviews(last_month, last_month)
+     cli()
 
 
