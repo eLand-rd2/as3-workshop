@@ -31,7 +31,6 @@ class ShopeeSpider(BaseSpider):
             747940835: 'shu uemura植村秀',
             774925409: 'BIOTHERM-碧兒泉'
         }
-        id_counter = 1
         for ratings in data['data']['items']:
             stars = ratings['rating_star']
             comment = ratings['comment']
@@ -55,17 +54,17 @@ class ShopeeSpider(BaseSpider):
                 time.sleep(1)
 
                 product_dict = {
-                    'id': id_counter,
+
                     'ecommerce': 'shopee',
                     'brand':
                         {
-                        'id': shopid,
+
                         'brand':brand_name,
                         'product': product_name,
                         },
                     'reviews': [
                         {
-                            'id': orderid,
+
                             'stars': stars,
                             'comment': comment,
                             'post_time': post_time
@@ -73,7 +72,6 @@ class ShopeeSpider(BaseSpider):
                     ]
                 }
                 payload.append(product_dict)
-                id_counter += 1
         return payload
 
     def save_data(self, db_session, payload):
