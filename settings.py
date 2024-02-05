@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import spiders
 from spiders.momo_spider import MomoSpider
 from spiders.shopee_spider import ShopeeSpider
 from spiders.ptt_spider import PttSpider
@@ -9,27 +10,31 @@ BASE_DIR = Path(__file__).parent
 database_url = f'sqlite:///{BASE_DIR}/as3_data.db'
 spider_target = [
     {
-        "spider_class": 'spiders.momo_spider.MomoSpider',
+        "spider_class": spiders.ptt_spider.MomoSpider,
         "urls": [
-            'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index'
-            '&kw=LANCOME%20%E8%98%AD%E8%94%BB'
+            'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index&kw=LANCOME%20%E8%98%AD%E8%94%BB'
         ]
     },
     {
-        "spider_class": 'spiders.shopee_spider.ShopeeSpider',
+        "spider_class": spiders.ptt_spider.ShopeeSpider,
         "urls": [
-            'https://shopee.tw/api/v2/item/get_ratings?exclude_filter=1&filter=0&filter_size=0&flag=1&fold_filter=0'
-            '&itemid=12394150289&limit=10&offset=0&relevant_reviews=false&request_source=2&shopid=779524889'
-            '&tag_filter=&type=0&variation_filters='
+            'https://shopee.tw/api/v2/item/get_ratings?exclude_filter=1&filter=0&filter_size=0&flag=1&fold_filter=0&itemid=12394150289&limit=6&offset=0&relevant_reviews=false&request_source=2&shopid=779524889&tag_filter=&type=0&variation_filters='
         ]
     },
-    {
-        "spider_class": 'spiders.ptt_spider.PttSpider',
-        'urls': [
-            'https://www.ptt.cc/bbs/MakeUp/index.html'
-        ]
-    }
+    # {
+    #     "spider_class": 'spiders.ptt_spider.PttSpider',
+    #     'urls': [
+    #         'https://www.ptt.cc/bbs/MakeUp/index.html'
+    #     ]
+    # }
 ]
+
+categories = {
+    "保養": ["精華液", "乳液"],
+    "美妝": ["粉底", "粉餅", "睫毛膏", "眼線筆", "眼線液", "眼影", "眉筆", "眉粉", "修容", "打亮"],
+    "髮品": ["髮油", "洗髮精", "護髮乳", "潤髮乳", "髮膜"],
+    "香水": ["香水", "淡香精"],
+}
 
 topics = {
     "服務": ["服務", "服務品質", "服務態度", "服務態度好", "服務態度不好", "服務好", "服務不好", "服務很好",

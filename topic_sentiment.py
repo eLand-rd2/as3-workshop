@@ -6,7 +6,8 @@ import dateutil.relativedelta
 from schemas.topic import TopicCreate
 from crud.topic import create_topic
 from schemas.review import ReviewUpdate
-from crud.review import update_review
+from crud.review import update_review, get_reviews
+
 
 '''
 data = {
@@ -26,30 +27,58 @@ last_month = last_month.month
 df = df[df['month'] == last_month]  # 取得上個月的資料
 '''
 
-# 呼叫並連接資料庫
-# 篩選月份
-now = datetime.now()  # 取得當前日期和時間
-last_month = now+dateutil.relativedelta.relativedelta(months=-1)  # 取的上個月的日期
-last_year = last_month.year
-last_month = last_month.month
-# 建立db連線
-session = get_session()
-try:
-    # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
-    query_result = session.query(as3_data).filter(as3_data.month == last_month).all()
-    # 將查詢結果轉換為 Pandas DataFrame
-    df = pd.read_sql(query_result.statement, session.bind)
+# begin/end
+# cli_scripts
+# process sentiment/ process topic
+# 平移、結束
 
-    # 進行維度標記
-    df['topic'] = df['reviews'].apply(match_topics)
 
-    # 進行情緒標記
-    docs = df['reviews']
-    sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
-    #只擷取 sentiment_tag 的值
-    sentiment = [result[0]['data'][0]['sentiment_tag']for result in sentiment_all]
-    sentiment_series = pd.Series(sentiment, name='sentiment')
-    df = pd.concat([df, sentiment_series], axis=1)
+
+def process_reviews(begin, end, page_size=100):
+
+    # 建立db連線
+    session = get_session()
+    try:
+        offset = 0
+        while True:
+            # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
+            query_result = get_reviews(session, begin=begin, end=end, limit=page_size, offset=offset)
+
+            if not query_result:
+                break  # 沒有更多資料時
+
+            process_sentiment(query_result)
+            process_topic(query_result)
+
+            # 更新 offset
+            offset += page_size
+
+            # 若處理完畢所有資料，跳出迴圈
+            if len(query_result) < page_size:
+                break
+
+    except Exception as e:
+        print(f"Error fetching data from database: {str(e)}")
+
+    finally:
+        session.close()  # 關閉會話
+
+def process_products():
+    pass
+
+def process_sentiment(reviews):
+    # df = pd.read_sql(reviews.statement, session.bind)
+    #
+    # # 進行維度標記
+    # df['topic'] = df['reviews'].apply(match_topics)
+    #
+    # # 進行情緒標記
+    # docs = df['reviews']
+    # sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
+    # #只擷取 sentiment_tag 的值
+    # sentiment = [result[0]['data'][0]['sentiment_tag']for result in sentiment_all]
+    # sentiment_series = pd.Series(sentiment, name='sentiment')
+    # df = pd.concat([df, sentiment_series], axis=1)
 
 
     # 儲存回資料庫
@@ -60,8 +89,10 @@ try:
     topic_data = TopicCreate(name=df['topic'])
     topic = create_topic(session, topic_data)
 
-except Exception as e:
-    print(f"Error fetching data from database: {str(e)}")
+def process_topic(reviews):
+    pass
 
-finally:
-    session.close()  # 關閉會話
+if __name__ == '__main__':
+    now = datetime.now()  # 取得當前日期和時間
+    last_month = now - dateutil.relativedelta(months=1)  # 取得上個月的月份
+    process_reviews(last_month, last_month)
