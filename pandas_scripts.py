@@ -7,7 +7,7 @@ from sqlalchemy import extract
 from db.database import get_session
 # from your_module import YourModel
 
-'''
+
 # 從資料庫拉出資料
 data = {
     'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
@@ -22,7 +22,7 @@ df = pd.DataFrame(data)
 # 資料清理  # 待刪
 df['month'] = pd.to_numeric(df['month'])  # 將 month 欄位轉換為數字
 df['rating'] = df['rating'].astype(float)  # 將'rating'列轉為浮點數
-'''
+
 
 
 # 篩選月份
@@ -30,7 +30,7 @@ now = datetime.now()  # 取得當前日期和時間
 last_month = now+dateutil.relativedelta.relativedelta(months=-1)  # 取的上個月的日期
 last_year = last_month.year
 last_month = last_month.month
-
+'''
 # 建立db連線
 session = get_session()
 try:
@@ -58,21 +58,22 @@ topics = settings.topics
 for topic in topics:
     df[topic] = df['topic'].apply(lambda x: 1 if topic in x else 0)
 
+'''
 
 # 進行情緒標記
-# docs = df['reviews']
-# sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
+docs = df['reviews']
+sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
 # #只擷取 sentiment_tag 的值
-# sentiment = [result[0]['data'][0]['sentiment_tag']for result in sentiment_all]
-# sentiment_series = pd.Series(sentiment, name='sentiment')
-# df = pd.concat([df, sentiment_series], axis=1)
-
+sentiment = [result[0]['data'][0]['sentiment_tag']for result in sentiment_all]
+sentiment_series = pd.Series(sentiment, name='sentiment')
+df = pd.concat([df, sentiment_series], axis=1)
+print(df)
 # 拆解 sentiment 欄位成 positve, negative, neutral三個欄位
-sentiment_dummies = pd.get_dummies(df['sentiment'], prefix='sentiment', dtype=int)
-df = pd.concat([df, sentiment_dummies], axis=1)
+# sentiment_dummies = pd.get_dummies(df['sentiment'], prefix='sentiment', dtype=int)
+# df = pd.concat([df, sentiment_dummies], axis=1)
 
 
-
+'''
 # Sheet 1 : momo與shopee兩個來源中，各品牌的總評論數&平均星等
 sheet_1 = df.groupby(['ecommerce', 'brand']).agg({
     'reviews': 'count',  # 評倫則數
@@ -156,6 +157,6 @@ with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     # 將 sheet_4 寫入 Excel 檔案中的 'Shopee' 頁籤
     sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', 'Group', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
-
+'''
 
 

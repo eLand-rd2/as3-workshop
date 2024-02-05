@@ -10,6 +10,9 @@ def mark_category(text):
     for category_name, category_keywords in categories.items():
         for category_keyword in category_keywords:
             if category_keyword in text:
+                marked_category = {
+                    'name': category_name
+                }
                 marked_categories.append(category_name)
                 break
     return marked_categories
@@ -59,11 +62,12 @@ def get_sentiment(doc_id, doc_content):
     for doc in doc_content:
         response = session.post(api_url, headers=headers, data=payload)
     responses.append(json.loads(response.text))
+
     return responses
 
-'''
+
 if __name__ == '__main__':
-    docs = [
+    doc = [
         "服務很好",
         "服務很不好",
         "價格很貴",
@@ -72,10 +76,12 @@ if __name__ == '__main__':
         "態度超不好",
         "服務",
     ]
-    sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
+
+    sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(doc))
     #只擷取 sentiment_tag 的值
     sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
-    print(sentiment_tags)
-'''
+    print(type(sentiment_tags))
+
+
 
 
