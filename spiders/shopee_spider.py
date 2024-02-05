@@ -60,7 +60,7 @@ class ShopeeSpider(BaseSpider):
                     'brand':
                         {
                         'id': shopid,
-                        'brand':brand_name
+                        'brand':brand_name,
                         'product': product_name,
                         },
                     'reviews': [
