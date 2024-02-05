@@ -15,6 +15,9 @@ def create_review(db: Session, review: ReviewCreate):
 def get_review(db: Session, review_id: int):
     return db.query(Review).filter(Review.id == review_id).first()
 
+def get_reviews(db: Session, begin, end, order_by='post_time', limit=100, offset=0):
+    query_result = db.query(Review).filter(Review.post_time.month >= begin).filter(Review.post_time.month <= end).order_by(order_by).limit(limit).offset(offset).all()
+    return query_result
 
 def update_review(db: Session, review_id: int, review: ReviewUpdate):
     db_review = db.query(Review).filter(Review.id == review_id).first()

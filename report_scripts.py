@@ -3,25 +3,36 @@ import requests
 import json
 from requests.exceptions import RequestException, JSONDecodeError
 
+# category 標記
+categories = settings.categories
+def mark_category(text):
+    marked_categories = []
+    for category_name, category_keywords in categories.items():
+        for category_keyword in category_keywords:
+            if category_keyword in text:
+                marked_categories.append(category_name)
+                break
+    return marked_categories
+
+
 
 # 維度標記
 topics = settings.topics
 
-
 def match_topics(text):
     matched_topics = []
-    for topic_name, keywords in topics.items():
-        for keyword in keywords:
-            if keyword in text:
+    for topic_name, topic_keywords in topics.items():
+        for topic_keyword in topic_keywords:
+            if topic_keyword in text:
                 matched_topics.append(topic_name)
                 break
     return matched_topics
 
 
+
 # 情緒標記
 api_key = settings.sentiment_api_key
 api_url = settings.sentiment_api_url
-
 
 def get_sentiment(doc_id, doc_content):
     responses = []

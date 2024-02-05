@@ -27,7 +27,7 @@ class Product(Base):
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
 
 
-class ReviewTopicAssociation(Base):
+class ReviewTopicAssociation(Base): # 用於建立reviews & topics 之間的多對多關係
     __tablename__ = 'review_topic_association'
     review_id = mapped_column(ForeignKey('reviews.id'), primary_key=True)
     topic_id = mapped_column(ForeignKey('topic.id'), primary_key=True)
@@ -41,8 +41,10 @@ class Review(Base):
     text: Mapped[str]
     post_time: Mapped[datetime]
     rating: Mapped[float] = mapped_column(default=3.0)
-    sentiment: Mapped[str] = mapped_column(default='中立')
     created_at: Mapped[datetime] = mapped_column(default=func.now())
+
+    sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
+    sentiment: Mapped['Sentiment'] = relationship('Sentiment', back_populates='reviews')
 
     product_id: Mapped[int] = mapped_column(ForeignKey('product.id'))
     product: Mapped['Product'] = relationship(back_populates='reviews')
@@ -70,3 +72,19 @@ class Topic(Base):
         'ReviewTopicAssociation',
         back_populates='topic'
     )
+
+class Sentiment(Base):
+    __tablename__ = 'sentiment'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+
+    review_id: Mapped[int] = mapped_column(ForeignKey("reviews.id"))
+    reviews: Mapped['Review'] = relationship('Review', back_populates='sentiment')
+
+class Category(Base):
+    __tablename__ = 'category'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+
+    review_id: Mapped[int] = mapped_column(ForeignKey("reviews.id"))
+    reviews: Mapped['Review'] = relationship('Review', back_populates='category')
