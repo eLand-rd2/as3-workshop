@@ -24,7 +24,10 @@ def match_topics(text):
     for topic_name, topic_keywords in topics.items():
         for topic_keyword in topic_keywords:
             if topic_keyword in text:
-                matched_topics.append(topic_name)
+                matched_topic = {
+                    'name': topic_name
+                }
+                matched_topics.append(matched_topic)
                 break
     return matched_topics
 

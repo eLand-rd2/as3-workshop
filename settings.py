@@ -10,13 +10,13 @@ BASE_DIR = Path(__file__).parent
 database_url = f'sqlite:///{BASE_DIR}/as3_data.db'
 spider_target = [
     {
-        "spider_class": spiders.ptt_spider.MomoSpider,
+        "spider_class": MomoSpider,
         "urls": [
             'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index&kw=LANCOME%20%E8%98%AD%E8%94%BB'
         ]
     },
     {
-        "spider_class": spiders.ptt_spider.ShopeeSpider,
+        "spider_class": ShopeeSpider,
         "urls": [
             'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=6&offset=0&shopid=779524889&userid=779508643'
         ]
