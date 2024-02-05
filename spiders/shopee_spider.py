@@ -27,6 +27,7 @@ class ShopeeSpider(BaseSpider):
             comment = ratings['comment']
             shopid = ratings['shopid']
             ctime = ratings['ctime']
+            orderid = ratings['orderid']
             utc_date_time_obj = datetime.utcfromtimestamp(ctime)
 
             # 時區為UTC+8
@@ -47,12 +48,12 @@ class ShopeeSpider(BaseSpider):
                     'ecommerce': 'shopee',
                     'brand':
                         {
-                        'shopid': shopid,
+                        'id': shopid,
                         'product': product_name,
                         },
                     'reviews': [
                         {
-                            'id': id_counter,
+                            'id': orderid,
                             'stars': stars,
                             'comment': comment,
                             'post_time': post_time
