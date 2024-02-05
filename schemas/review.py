@@ -7,6 +7,7 @@ class ReviewBase(BaseModel):
     text: str
     rating: float
     sentiment: Optional[str] = '中立'
+    category: Optional[str] = '保養'
     post_time: datetime
 
 
@@ -18,6 +19,7 @@ class ReviewUpdate(BaseModel):
     text: Optional[str] = None
     rating: Optional[float] = None
     sentiment: Optional[str] = None
+    category: Optional[str] = None
     post_time: Optional[datetime] = None
 
 class ReviewRead(ReviewBase):
