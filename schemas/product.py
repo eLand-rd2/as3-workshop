@@ -6,6 +6,8 @@ from typing import Optional
 class ProductBase(BaseModel):
     name: str
     rating: Optional[float] = 3.0
+    category: Optional[str] = '保養'
+
 
 
 # 用于创建新产品的模型
@@ -17,6 +19,7 @@ class ProductCreate(ProductBase):
 class ProductUpdate(ProductBase):
     name: Optional[str] = None
     rating: Optional[float] = None
+    category: Optional[str] = None
     brand_id: Optional[int] = None
 
 
