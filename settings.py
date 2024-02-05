@@ -18,7 +18,7 @@ spider_target = [
     {
         "spider_class": spiders.ptt_spider.ShopeeSpider,
         "urls": [
-            'https://shopee.tw/api/v2/item/get_ratings?exclude_filter=1&filter=0&filter_size=0&flag=1&fold_filter=0&itemid=12394150289&limit=6&offset=0&relevant_reviews=false&request_source=2&shopid=779524889&tag_filter=&type=0&variation_filters='
+            'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=6&offset=0&shopid=779524889&userid=779508643'
         ]
     },
     # {
