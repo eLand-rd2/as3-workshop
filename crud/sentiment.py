@@ -13,6 +13,8 @@ def create_sentiment(db: Session, sentiment: SentimentCreate):
 def get_sentiment(db: Session, sentiment_id: int):
     return db.query(Sentiment).filter(Sentiment.id == sentiment_id).first()
 
+def get_sentiment_name(db: Session, sentiment_name: str):
+    return db.query(Sentiment).filter(Sentiment.name == sentiment_name).first()
 
 def update_sentiment_with_review(db: Session, reviews_id: int, sentiment: SentimentUpdate):
     # 查詢與指定評論相關聯的sentiments
