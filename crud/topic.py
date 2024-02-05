@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from db.models import Topic
 from schemas.topic import TopicCreate, TopicUpdate
+from typing import Tuple
+
 
 
 def create_topic(db: Session, topic: TopicCreate):
@@ -11,8 +13,9 @@ def create_topic(db: Session, topic: TopicCreate):
     return db_topic
 
 
-def get_topic(db: Session, topic_id: int):
-    return db.query(Topic).filter(Topic.id == topic_id).first()
+def get_topic(db: Session, topic_id: int) -> Tuple[Topic, int]:
+    topic = db.query(Topic).filter(Topic.id == topic_id).first()
+    return topic, topic.id if topic else None
 
 
 def update_topic(db: Session, topic_id: int, topic: TopicUpdate):
