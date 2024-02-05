@@ -126,11 +126,13 @@ def process_sentiment(reviews):
         text = review.text
 
         # 利用 get_sentiment 進行維度標記
-        sentiment = get_sentiment(text)
+        sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(text))
+        #只擷取 sentiment_tag 的值
+        sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
 
         # 將維度標記更新回資料庫
-        if sentiment:
-            for sentiment_name in sentiment:
+        if sentiment_tags:
+            for sentiment_name in sentiment_tags:
                 # 比對 db 中是否已有此維度，若無則創建維度
                 sentiment_in_db = get_sentiment_name.filter(sentiment_name)
                 if not sentiment_in_db:
@@ -162,7 +164,11 @@ def process_topic(reviews):
                 # 比對review_id 與 topic_id，並將維度標記存入資料庫
                 append_topic(review_id=review_id, topic_id=topic_in_db.id)
 
+
+
 if __name__ == '__main__':
-    now = datetime.now()  # 取得當前日期和時間
-    last_month = now - dateutil.relativedelta(months=1)  # 取得上個月的月份
-    process_reviews(last_month, last_month)
+     now = datetime.now()  # 取得當前日期和時間
+     last_month = now - dateutil.relativedelta(months=1)  # 取得上個月的月份
+     process_reviews(last_month, last_month)
+
+
