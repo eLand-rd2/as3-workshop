@@ -21,6 +21,16 @@ class ShopeeSpider(BaseSpider):
 
         data = response.json()
         payload = []
+        shopid_brand_mapping = {
+            779524889: 'LANCOME蘭蔻',
+            779422436: "Kiehl's契爾氏",
+            37004578: '巴黎萊雅',
+            6678703: '理膚寶水',
+            1183: 'CeraVe適樂膚',
+            37008598: 'maybelline',
+            747940835: 'shu uemura植村秀',
+            774925409: 'BIOTHERM-碧兒泉'
+        }
         id_counter = 1
         for ratings in data['data']['items']:
             stars = ratings['rating_star']
@@ -28,6 +38,7 @@ class ShopeeSpider(BaseSpider):
             shopid = ratings['shopid']
             ctime = ratings['ctime']
             orderid = ratings['orderid']
+            brand_name = shopid_brand_mapping.get(shopid)
             utc_date_time_obj = datetime.utcfromtimestamp(ctime)
 
             # 時區為UTC+8
@@ -49,6 +60,7 @@ class ShopeeSpider(BaseSpider):
                     'brand':
                         {
                         'id': shopid,
+                        'brand':brand_name
                         'product': product_name,
                         },
                     'reviews': [
