@@ -21,9 +21,11 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     rating: Mapped[float] = mapped_column(default=3.0)
+    category: Mapped['Category'] = relationship(back_populates='category')
 
     brand_id: Mapped[int] = mapped_column(ForeignKey('brand.id'))
     brand: Mapped['Brand'] = relationship('Brand', back_populates='products')
+
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
 
 
