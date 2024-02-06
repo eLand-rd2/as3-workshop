@@ -7,7 +7,7 @@ from sqlalchemy import extract
 from db.database import get_session
 # from your_module import YourModel
 
-
+'''
 # 從資料庫拉出資料
 data = {
     'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
@@ -54,7 +54,7 @@ finally:
     session.close()  # 關閉會話
 
 
-'''
+
 # 維度標記
 # df['topic'] = df['reviews'].apply(match_topics)  # 待刪
 df['matched_topic'] = df.apply(find_matched_topic, axis=1)  # 比對 category 以及 topic
@@ -65,8 +65,8 @@ topics = settings.topics
 for topic in topics:
     df[topic] = df['matched_topic'].apply(lambda x: 1 if topic in x else 0)
 
-'''
 # 進行情緒標記
+'''
 docs = df['reviews']
 sentiment_all = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(docs))
 # #只擷取 sentiment_tag 的值
@@ -141,6 +141,7 @@ sheet_4 = sheet_4.drop(columns=['level_2'])
 sheet_4['Group'] = "L'Oreal"  # 新增Group欄位
 sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'matched_topic']]  # 重新排序欄位
 sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
+
 
 
 # 輸出報表
