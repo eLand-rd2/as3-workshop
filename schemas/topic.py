@@ -21,5 +21,6 @@ class TopicUpdate(BaseModel):
 class TopicRead(TopicBase):
     id: int
 
+
     class Config:
         orm_mode = True
