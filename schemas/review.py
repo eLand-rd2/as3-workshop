@@ -25,4 +25,4 @@ class ReviewRead(ReviewBase):
     product: 'ProductBase'
 
     class Config:
-        orm_mode = True
+        from_attributes = True

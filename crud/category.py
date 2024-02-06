@@ -13,6 +13,9 @@ def create_category(db: Session, category: CategoryCreate):
 def get_category(db: Session, category_id: int):
     return db.query(Category).filter(Category.id == category_id).first()
 
+def get_category_name(db: Session, category_name: str):
+    return db.query(Category).filter(Category.name == category_name).first()
+
 
 def update_category(db: Session, category_id: int, category: CategoryUpdate):
     db_category = db.query(Category).filter(Category.id == category_id).first()

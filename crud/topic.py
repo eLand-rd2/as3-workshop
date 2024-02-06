@@ -17,6 +17,8 @@ def get_topic(db: Session, topic_id: int) -> Tuple[Topic, int]:
     topic = db.query(Topic).filter(Topic.id == topic_id).first()
     return topic, topic.id if topic else None
 
+def get_topic_name(db: Session, topic_name: str):
+    return db.query(Topic).filter(Topic.name == topic_name).first()
 
 def update_topic(db: Session, topic_id: int, topic: TopicUpdate):
     db_topic = db.query(Topic).filter(Topic.id == topic_id).first()

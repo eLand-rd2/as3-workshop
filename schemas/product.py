@@ -29,5 +29,4 @@ class ProductRead(ProductBase):
     brand: 'BrandBase'
 
     class Config:  # Pydantic 模型的配置類，用於配置模型的行為
-        orm_mode = True # 設置為 True 表示模型可以從 ORM（對象關係映射）對象直接解析
         from_attributes = True # 指示 Pydantic 在創建模型實例時從其他屬性中自動提取數據
