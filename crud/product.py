@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from db.models import Product
+from db.models import Product, Category
 from schemas.product import ProductCreate, ProductUpdate
 
 
@@ -37,3 +37,14 @@ def delete_product(db: Session, product_id: int):
         db.delete(db_product)
         db.commit()
     return {"msg": "Product deleted"}
+
+def append_category(db: Session, product_id, category_id):
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+    db_category = db.query(Category).filter(Category.id == category_id).first()
+
+    if db_product and db_category:
+        db_product.topics.append(db_category)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    return None
