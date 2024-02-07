@@ -11,16 +11,7 @@ def greet():
 @click.command()
 def run_spider():
     run_spider_task()
-    # """Run periodic task."""
-    # TARGETS = settings.spider_target
-    # for target in TARGETS:
-    #     spider_cls = target['spider_class']
-    #     target_url_list = target['urls']
-    #
-    #     spider = spider_cls()
-    #
-    #     for target_url in target_url_list:
-    #         spider.run(target_url)
+
 
 
 # run generate report task

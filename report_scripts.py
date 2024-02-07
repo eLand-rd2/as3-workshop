@@ -2,6 +2,7 @@ import settings
 import requests
 import json
 import pandas as pd
+import re
 from requests.exceptions import RequestException, JSONDecodeError
 
 # category 標記
@@ -10,11 +11,10 @@ def match_category(text):
     marked_categories = []
     for category_name, category_keywords in categories.items():
         for category_keyword in category_keywords:
-            if category_keyword in text:
-                marked_category = {
-                    'name': category_name
-                }
-                marked_categories.append(category_name)
+            pattern = category_keyword
+            if re.search(pattern, text):
+                marked_category = {'name': category_name}
+                marked_categories.append(marked_category)
                 break
     return marked_categories
 
@@ -27,10 +27,10 @@ def match_topics(text):
     matched_topics = []
     for topic_name, topic_keywords in topics.items():
         for topic_keyword in topic_keywords:
-            if topic_keyword in text:
-                matched_topic = {
-                    'name': topic_name
-                }
+            pattern = topic_keyword
+            if re.search(pattern, text):
+                matched_topic = {'name': topic_name}
+                # print('匹配成功')
                 matched_topics.append(matched_topic)
                 break
     return matched_topics
@@ -79,14 +79,13 @@ if __name__ == '__main__':
     data = {
         'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
         'brand': ['Lan', 'Lan', 'LRP', 'LRP', 'LRP', 'YSL', 'Lan', 'Lan', 'Lan', 'LOAP', 'LOAP'],
-        'product': ['精華', '精華', '乳霜', '乳霜', '抗痘凝膠', '口紅', '粉底液', '粉底液', '粉底液', '乳霜', '乳液'],
-        'reviews': ['服務很好', '服務很不好，價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
-        'category': ['髮品', '保養', '保養', '保養', '保養', '保養', '美妝', '美妝', '美妝', '保養', '髮品'],
-        'topic': [['保養-服務', '美妝-品質'], ['保養-服務', '保養-價格', '美妝-品質'], ['保養-服務'], ['保養-價格'], ['保養-價格'], ['保養-保濕'], ['美妝-品質'], ['美妝-品質'], ['美妝-品質'], ['保養-保濕'], ['髮品-服務']],
+        'product': ['精華', '精華', '乳霜', '乳霜', '抗痘凝膠', '口紅', '粉底液', '粉底液', '粉底液', '乳霜', '香水髮油'],
+        'reviews': ['服務很好', '包裝很不好，而且價格也很貴', '服務很好，價格也很貴', '服務很不好，價格也很便宜', '服務', '價格', '價格', '品質', '服務包裝', '價格', '品質'],
     }
     df = pd.DataFrame(data)
 
-    df['matched_topic'] = df.apply(find_matched_topic, axis=1)
+    df['match_category'] = df['product'].apply(match_category)
+    # df['match_topic'] = df['reviews'].apply(match_topics)
     print(df)
 
 '''
