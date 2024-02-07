@@ -9,9 +9,28 @@ def read_brands(db: Session, filters=None, order_by=None, limit=None, offset=Non
     return brands
 
 
-def get_brand(db: Session, brand_id: int):
-    db_brand = db.query(Brand).filter(Brand.id == brand_id).first()
+# def get_brand(db: Session, brand_id: int):
+#     db_brand = db.query(Brand).filter(Brand.id == brand_id).first()
+#     return db_brand
+
+def get_brand(db: Session, name: str):
+    db_brand = db.query(Brand).filter(Brand.name == name).first()
     return db_brand
+
+
+def create_or_get_brand(db: Session, brand_name: str, ecommerce: str) -> Brand:
+    existing_brand = db.query(Brand).filter(Brand.name == brand_name).first()
+    if existing_brand:
+        print("品牌名稱：" + str(brand_name) + " id: " + str(existing_brand.id))
+        return existing_brand
+
+    else:
+        brand_data = BrandCreate(name=brand_name, ecommerce=ecommerce)
+        new_brand = Brand(**brand_data.dict())
+        db.add(new_brand)
+        db.commit()
+        db.refresh(new_brand)
+        return new_brand
 
 
 def create_brand(db: Session, brand: BrandCreate):

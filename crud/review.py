@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 
-from db.models import Review, Topic
+from db.models import Review, Topic, ReviewTopicAssociation
+
 from schemas.review import ReviewCreate, ReviewUpdate
+from schemas.topic import TopicCreate
 
-
-def create_review(db: Session, review: ReviewCreate):
+def create_review(db: Session, review: ReviewCreate): # 這個是給廣興用來存進去的
     db_review = Review(**review.model_dump())
     db.add(db_review)
     db.commit()
@@ -39,7 +40,7 @@ def delete_review(db: Session, review_id: int):
     return {"msg": "Review deleted"}
 
 
-def append_topic(db: Session, review_id, topic_id):
+def append_topic(db: Session, review_id, topic_id): # Serena更新topic用
     db_review = db.query(Review).filter(Review.id == review_id).first()
     db_topic = db.query(Topic).filter(Topic.id == topic_id).first()
 

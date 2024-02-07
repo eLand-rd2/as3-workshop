@@ -11,6 +11,20 @@ def create_product(db: Session, product: ProductCreate):
     db.refresh(db_product)
     return db_product
 
+def create_or_get_product(db: Session, product: ProductBase):
+    existing_product = db.query(product).filter(product.name == product_name).first()
+    if existing_product:
+        print("品牌名稱：" + str(product_name) + "id:" +  int(existing_product.id))
+        return existing_product
+    else:
+        product_data = ProductCreate(name=product_name,
+                                     category=category,
+                                     brand_id=brand_id)
+        new_product = Product(**product_data.dict())
+        db.add(new_product)
+        db.commit()
+        db.refresh(new_product)
+        return new_product
 
 def get_product(db: Session, product_id: int):
     return db.query(Product).filter(Product.id == product_id).first()
@@ -38,7 +52,7 @@ def delete_product(db: Session, product_id: int):
         db.commit()
     return {"msg": "Product deleted"}
 
-def append_category(db: Session, product_id, category_id):
+def append_category(db: Session, product_id, category_id): # Serena更新category用
     db_product = db.query(Product).filter(Product.id == product_id).first()
     db_category = db.query(Category).filter(Category.id == category_id).first()
 

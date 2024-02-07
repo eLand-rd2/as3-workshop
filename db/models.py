@@ -27,9 +27,9 @@ class Product(Base):
 
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
 
-    categoies: Mapped[List['Category']] = relationship(
+    categories: Mapped[List['Category']] = relationship(
         secondary='product_category_association',
-        back_populates='category'
+        back_populates='products'
     )
     category_associations: Mapped[List['ProductCategoryAssociation']] = relationship(
         'ProductCategoryAssociation',

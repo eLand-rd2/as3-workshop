@@ -28,6 +28,7 @@ def payload():
                     "id": 1,
                     "text": "Great product",
                     "rating": 5,
+                    "sentiment": "正面",
                     "post_time": "2024-01-01 00:00:00",
                     "topics": [
                         {"id": 1, "name": "Quality"},
@@ -50,6 +51,7 @@ def payload():
                     "id": 2,
                     "text": "Bad product",
                     "rating": 1,
+                    "sentiment": "負面",
                     "post_time": "2024-01-01 00:00:00",
                     "topics": [
                         {"id": 1, "name": "Quality"},

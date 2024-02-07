@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.orm import Session
 from datetime import datetime
 from db.models import Brand, Product, Review
@@ -7,34 +6,53 @@ from schemas.product import ProductCreate
 from crud.brand import create_or_get_brand
 from crud.product import create_or_get_product
 
-# 第一段测试：测试爬虫数据是否能正常存储到数据库中
-def test_store_crawler_data_to_db(db_session: Session):
-    # 模拟爬虫数据
-    brand_name = "Apple"
-    ecommerce = "momo"
-    product_name = "iPhone"
-    category = "Skincare"
+spider_data = {
+            "name": "iPhone",
+            "brand": {
+                "name": "Apple",
+                "ecommerce": 'momo'
+            },
+            "reviews": [
+                {
+                    "text": "Great product",
+                    "rating": 5,
+                    "post_time": "2024-01-01 00:00:00",
+                    "topics": [
+                        {"name": "Quality"},
+                        {"name": "Price"}
+                    ]
+                }
+            ]
+        }
 
-    # 创建品牌
+# 第一段测试：將爬虫数据存储到数据库中
+def create_spider_data_to_db(db_session: Session, spider_data: dict):
+    # 解析爬虫数据
+    product_data = spider_data.get("name")
+    brand_data = spider_data.get("brand")
+    reviews_data = spider_data.get("reviews")
+
+    # 检查数据库中是否已存在品牌，如果不存在则创建新品牌
+    brand_name = brand_data["name"]
+    ecommerce = brand_data["ecommerce"]
     brand = create_or_get_brand(db_session, brand_name, ecommerce)
-    assert isinstance(brand, Brand)
+    return brand
 
-    # 创建产品
-    product = create_or_get_product(db_session, product_name, category, brand.id)
-    assert isinstance(product, Product)
+    # 检查数据库中是否已存在产品，如果不存在则创建新产品
+    product = create_or_get_product(db_session, product_data)
+    return product
 
-    # 创建评论
-    review_text = "Great product"
-    rating = 5
-    post_time = datetime.now()
-    review = Review(text=review_text, rating=rating, post_time=post_time, brand_id=brand.id, product_id=product.id)
-    db_session.add(review)
-    db_session.commit()
-
-    # 检查数据是否成功存储到数据库中
-    assert db_session.query(Brand).filter_by(name=brand_name).first() is not None
-    assert db_session.query(Product).filter_by(name=product_name).first() is not None
-    assert db_session.query(Review).filter_by(text=review_text).first() is not None
+    # 检查并创建评论以及相关主题
+    for review_data in reviews_data:
+        # 创建评论
+        review = Review(
+            text=review_data["text"],
+            rating=review_data["rating"],
+            post_time=datetime.strptime(review_data["post_time"], "%Y-%m-%d %H:%M:%S"),
+            product_id=product.id
+        )
+        db_session.add(review)
+        db_session.commit()
 
 # 第二段测试：测试已存储的数据能否正常获取
 def test_get_reviews_with_date(db_session: Session, start_date: datetime, end_date: datetime) -> List[dict]:
