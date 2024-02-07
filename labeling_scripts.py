@@ -1,12 +1,12 @@
 from db.database import get_session
-from report_scripts import match_topics, get_sentiment, mark_category
+from report_scripts import match_topics, get_sentiment, match_category
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 import dateutil.relativedelta
 from schemas.topic import TopicCreate
 from crud.topic import create_topic, get_topic_name
-from crud.review import get_reviews, append_topic
-from crud.product import get_products
+from crud.review import get_reviews, append_topic, update_review
+from crud.product import get_products, append_category
 from crud.category import create_category, get_category_name
 from schemas.category import CategoryCreate
 from crud.sentiment import create_sentiment, get_sentiment_name
@@ -32,10 +32,6 @@ last_month = last_month.month
 df = df[df['month'] == last_month]  # 取得上個月的資料
 '''
 
-# begin/end
-# cli_scripts
-# process sentiment/ process topic
-# 平移、結束
 
 
 @click.command()
@@ -98,28 +94,30 @@ def process_products(page_size=100):
 
 
 def process_category(products):
+    session = get_session()
     for product in products:
         # 取得 Product 相關資訊
         product_id = product.id
         text = product.text
 
         # 利用 mark_category 進行品類維度標記
-        marked_category = mark_category(text)
+        matched_category = match_category(text)
 
         # 將維度標記更新回資料庫
-        if marked_category:
-            for category_name in marked_category:
+        if matched_category:
+            for category_name in matched_category:
                 # 比對 db 中是否已有此品類維度，若無則創建維度
-                category_in_db = get_category_name.filter(category_name)
+                category_in_db = get_category_name(session, category_name)
                 if not category_in_db:
                     category_payload = category_name.copy()
                     category_create = CategoryCreate(**category_payload)
-                    category_in_db = create_category(category_create)
+                    category_in_db = create_category(session, category_create)
                 # 比對 product_id 與 category_id，並將維度標記存入資料庫
-                append_topic(product_id=product_id, category_id=category_in_db.id)
+                append_category(session, product_id=product_id, category_id=category_in_db.id)
 
 
 def process_sentiment(reviews):
+    session = get_session()
     for review in reviews:
         # 取得 Review 相關資訊
         review_id = review.id
@@ -134,16 +132,17 @@ def process_sentiment(reviews):
         if sentiment_tags:
             for sentiment_name in sentiment_tags:
                 # 比對 db 中是否已有此維度，若無則創建維度
-                sentiment_in_db = get_sentiment_name.filter(sentiment_name)
+                sentiment_in_db = get_sentiment_name(session, sentiment_name)
                 if not sentiment_in_db:
                     sentiment_payload = sentiment_name.copy()
                     sentiment_create = SentimentCreate(**sentiment_payload)
-                    sentiment_in_db = create_sentiment(sentiment_create)
+                    sentiment_in_db = create_sentiment(session, sentiment_create)
                 # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                append_topic(review_id=review_id, sentiment_id=sentiment_in_db.id)
+                update_review(session, review_id=review_id, review=sentiment_in_db)
 
 
 def process_topic(reviews):
+    session = get_session()
     for review in reviews:
         # 取得 Review 相關資訊
         review_id = review.id
@@ -156,13 +155,13 @@ def process_topic(reviews):
         if matched_topics:
             for topic_name in matched_topics:
                 # 比對 db 中是否已有此維度，若無則創建維度
-                topic_in_db = get_topic_name.filter(topic_name)
+                topic_in_db = get_topic_name(session, topic_name)
                 if not topic_in_db:
                     topic_payload = topic_name.copy()
                     topic_create = TopicCreate(**topic_payload)
-                    topic_in_db = create_topic(topic_create)
+                    topic_in_db = create_topic(session, topic_create)
                 # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                append_topic(review_id=review_id, topic_id=topic_in_db.id)
+                append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
 
 
 @click.group()
@@ -174,6 +173,11 @@ cli.add_command(process_reviews)
 
 
 if __name__ == '__main__':
-     cli()
+    now = datetime.now()
+    last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
+    first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
+    last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+
+    cli(first_day_of_last_month, last_day_of_last_month)
 
 

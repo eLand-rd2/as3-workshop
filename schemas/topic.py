@@ -21,5 +21,6 @@ class TopicUpdate(BaseModel):
 class TopicRead(TopicBase):
     id: int
 
+
     class Config:
         from_attributes = True
