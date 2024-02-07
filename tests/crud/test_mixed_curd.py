@@ -17,6 +17,7 @@ def payload():
         {
             "id": 1,
             "name": "iPhone",
+            "category": "Skincare",
             "brand": {
                 "id": 1,
                 "name": "Apple",
@@ -38,6 +39,7 @@ def payload():
         {
             "id": 2,
             "name": "Galaxy",
+            "category": "Makeup",
             "brand": {
                 "id": 2,
                 "name": "Samsung",
