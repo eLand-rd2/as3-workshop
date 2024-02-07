@@ -6,7 +6,7 @@ from requests.exceptions import RequestException, JSONDecodeError
 
 # category 標記
 categories = settings.categories
-def mark_category(text):
+def match_category(text):
     marked_categories = []
     for category_name, category_keywords in categories.items():
         for category_keyword in category_keywords:
