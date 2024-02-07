@@ -1,11 +1,11 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 import dateutil.relativedelta
 from report_scripts import match_topics, get_sentiment, find_matched_topic
 import settings
 from sqlalchemy import extract
 from db.database import get_session
-# from your_module import YourModel
+
 
 '''
 # 從資料庫拉出資料
@@ -31,15 +31,16 @@ df = df[df['month'] == last_month]
 
 '''
 # 篩選月份
-now = datetime.now()  # 取得當前日期和時間
-last_month = now+dateutil.relativedelta.relativedelta(months=-1)  # 取的上個月的日期
-last_year = last_month.year
-last_month = last_month.month
+now = datetime.now() # 取得當前日期和時間
+last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
+first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
+last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+
 
 # 建立db連線
 session = get_session()
 try:
-    # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
+    # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料  # 新的crud全拿
     query_result = (
         session.query(as3_data)
         .filter(extract('year', as3_data.post_time) == last_year)
@@ -146,7 +147,7 @@ sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依�
 
 # 輸出報表
 # 檔案名稱
-excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
+excel_filename = f'電商MonthlyReport_{last_month.year}_{last_month.month}.xlsx'
 
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
