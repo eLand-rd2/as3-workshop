@@ -21,12 +21,20 @@ class Product(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     rating: Mapped[float] = mapped_column(default=3.0)
-    category: Mapped['Category'] = relationship(back_populates='category')
 
     brand_id: Mapped[int] = mapped_column(ForeignKey('brand.id'))
     brand: Mapped['Brand'] = relationship('Brand', back_populates='products')
 
     reviews: Mapped[List['Review']] = relationship(back_populates='product')
+
+    categoies: Mapped[List['Category']] = relationship(
+        secondary='product_category_association',
+        back_populates='category'
+    )
+    category_associations: Mapped[List['ProductCategoryAssociation']] = relationship(
+        'ProductCategoryAssociation',
+        back_populates='product'
+    )
 
 
 
@@ -88,24 +96,10 @@ class Topic(Base):
 
 class ProductCategoryAssociation(Base):  # 用於建立products & categories 之間的多對多關係
     __tablename__ = 'product_category_association'
-    product_id = mapped_column(ForeignKey('products.id'), primary_key=True)
+    product_id = mapped_column(ForeignKey('product.id'), primary_key=True)
     category_id = mapped_column(ForeignKey('categories.id'), primary_key=True)
     product: Mapped['Product'] = relationship(back_populates='category_associations')
     category: Mapped['Category'] = relationship(back_populates='product_associations')
-
-
-class Product(Base):
-    __tablename__ = 'products'
-    id: Mapped[int] = mapped_column(primary_key=True)
-    text: Mapped[str]
-    post_time: Mapped[datetime]
-    rating: Mapped[float] = mapped_column(default=3.0)
-    created_at: Mapped[datetime] = mapped_column(default=func.now())
-
-    sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
-    sentiment: Mapped['Sentiment'] = relationship('Sentiment', back_populates='products')
-
-
 
 
 class Category(Base):
