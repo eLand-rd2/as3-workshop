@@ -124,13 +124,11 @@ def process_sentiment(reviews):
         text = review.text
 
         # 利用 get_sentiment 進行維度標記
-        sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(text))
-        #只擷取 sentiment_tag 的值
-        sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
+        sentiment = get_sentiment(1, text)
 
         # 將維度標記更新回資料庫
-        if sentiment_tags:
-            for sentiment_name in sentiment_tags:
+        if sentiment:
+            for sentiment_name in sentiment:
                 # 比對 db 中是否已有此維度，若無則創建維度
                 sentiment_in_db = get_sentiment_name(session, sentiment_name)
                 if not sentiment_in_db:
