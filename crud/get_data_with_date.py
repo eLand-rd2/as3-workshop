@@ -27,14 +27,14 @@ def get_data_with_date(db_session: Session, start_date: datetime, end_date: date
             topics = [topic.name for topic in review.topics]
 
             result.append({
-                'brand_name': brand_info.name if brand_info else None,
-                'brand_ecommerce': brand_info.ecommerce if brand_info else None,
-                'product_name': product_info.name,
-                'product_category': categories,
-                'review_text': review.text,
-                'review_sentiment': review.sentiment,
-                'review_rating': review.rating,
-                'topics': topics
+                'brand': brand_info.name if brand_info else None,
+                'ecommerce': brand_info.ecommerce if brand_info else None,
+                'product': product_info.name,
+                'category': categories,
+                'reviews': review.text,
+                'sentiment': review.sentiment,
+                'rating': review.rating,
+                'topic': topics
             })
 
     return result

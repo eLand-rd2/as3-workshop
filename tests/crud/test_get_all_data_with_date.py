@@ -73,14 +73,14 @@ def test_get_data_with_date(db_session: Session, start_date: datetime, end_date:
             topics = [topic.name for topic in review.topics]
 
             result.append({
-                'brand_name': brand_info.name if brand_info else None,
-                'brand_ecommerce': brand_info.ecommerce if brand_info else None,
-                'product_name': product_info.name,
-                'product_category': categories,
-                'review_text': review.text,
-                'review_sentiment': review.sentiment,
-                'review_rating': review.rating,
-                'topics': topics
+                'brand': brand_info.name if brand_info else None,
+                'ecommerce': brand_info.ecommerce if brand_info else None,
+                'product': product_info.name,
+                'category': categories,
+                'reviews': review.text,
+                'sentiment': review.sentiment,
+                'rating': review.rating,
+                'topic': topics
             })
 
     return result
@@ -92,11 +92,11 @@ def test_get_data_with_date(db_session: Session, start_date: datetime, end_date:
     assert len(result) == 2
 
     # 检查每个结果项中的品牌、产品、评论等信息是否正确匹配
-    assert result[0]['brand_name'] == 'Apple'
-    assert result[0]['brand_ecommerce'] == 'momo'
-    assert result[0]['product_name'] == 'iPhone'
-    assert result[0]['product_category'] == 'Skincare'
-    assert result[0]['review_text'] == 'Great product'
-    assert result[0]['review_sentiment'] == '中立'  # 假设sentiment为中立
-    assert result[0]['review_rating'] == 5
-    assert result[0]['topics'] == ['Quality', 'Price']
+    assert result[0]['brand'] == 'Apple'
+    assert result[0]['ecommerce'] == 'momo'
+    assert result[0]['product'] == 'iPhone'
+    assert result[0]['category'] == 'Skincare'
+    assert result[0]['reviews'] == 'Great product'
+    assert result[0]['sentiment'] == '中立'  # 假设sentiment为中立
+    assert result[0]['rating'] == 5
+    assert result[0]['topic'] == ['Quality', 'Price']

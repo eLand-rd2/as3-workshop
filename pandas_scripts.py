@@ -5,6 +5,7 @@ from report_scripts import match_topics, get_sentiment, find_matched_topic
 import settings
 from sqlalchemy import extract
 from db.database import get_session
+from crud.get_data_with_date import get_data_with_date
 
 
 '''
@@ -31,24 +32,21 @@ df = df[df['month'] == last_month]
 
 '''
 # 篩選月份
-now = datetime.now() # 取得當前日期和時間
+now = datetime.now()  # 取得當前日期和時間
 last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
 first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
-last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+last_day_of_last_month = (date(now.year, now.month, 1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
+last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
 
 
 # 建立db連線
 session = get_session()
 try:
-    # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料  # 新的crud全拿
-    query_result = (
-        session.query(as3_data)
-        .filter(extract('year', as3_data.post_time) == last_year)
-        .filter(extract('month', as3_data.post_time) == last_month)
-        .all()
-    )
-    # 將查詢結果轉換為 Pandas DataFrame
-    df = pd.read_sql(query_result.statement, session.bind)
+    # 使用 get_data_with_date 擷取所有符合條件(上個月)的資料
+    data = get_data_with_date(session, first_day_dt, last_day_dt)
+    # 將data轉換為 Pandas DataFrame
+    df = pd.DataFrame(data)
 except Exception as e:
     print(f"Error fetching data from database: {str(e)}")
 finally:
@@ -58,13 +56,13 @@ finally:
 
 # 維度標記
 # df['topic'] = df['reviews'].apply(match_topics)  # 待刪
-df['matched_topic'] = df.apply(find_matched_topic, axis=1)  # 比對 category 以及 topic
-df['matched_topic'] = df['matched_topic'].apply(lambda x: '、'.join(x))  # 調整維度標記格式
+# df['matched_topic'] = df.apply(find_matched_topic, axis=1)  # 比對 category 以及 topic
+df['topic'] = df['topic'].apply(lambda x: '、'.join(x))  # 調整維度標記格式
 
 # 維度標記轉為二進制
 topics = settings.topics
 for topic in topics:
-    df[topic] = df['matched_topic'].apply(lambda x: 1 if topic in x else 0)
+    df[topic] = df['topic'].apply(lambda x: 1 if topic in x else 0)
 
 # 進行情緒標記
 '''
@@ -103,7 +101,7 @@ sheet_1 = sheet_1.sort_values(by=['ecommerce', 'brand'], key=lambda x: x.str.low
 # sheet_2 : momo與shopee兩個來源中，各品牌的5維度分別的正評數、負評數、中立數以及PN比
 all_topic_result = []
 for key, value in settings.topics.items():
-    print(key)
+    # print(key)
     topic_result = df[df[key] == 1]
     topic_result = topic_result.groupby(['ecommerce', 'brand']).agg({
         'sentiment_正面': 'sum',  # 正評數
@@ -111,7 +109,7 @@ for key, value in settings.topics.items():
         'sentiment_中立': 'sum',  # 中立數
     }).reset_index()
     topic_result['維度'] = key
-    print(topic_result)
+    # print(topic_result)
     all_topic_result.append(topic_result)
 # 合併所有維度標記結果
 sheet_2 = pd.concat(all_topic_result, ignore_index=True)
@@ -128,19 +126,19 @@ sheet_2 = sheet_2.sort_values(by=['ecommerce', 'brand'], key=lambda x: x.str.low
 
 # sheet 3 : momo來源中，各品牌產品的評論內容$各評論之星等
 momo_df = df[df['ecommerce'] == 'momo']    # 篩選 source = momo 的資料
-sheet_3 = momo_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'matched_topic']].reset_index(drop=True)).reset_index()
+sheet_3 = momo_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 sheet_3 = sheet_3.drop(columns=['level_2'])
 sheet_3['Group'] = "L'Oreal"  # 新增Group欄位
-sheet_3 = sheet_3[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'matched_topic']]  # 重新排序欄位
+sheet_3 = sheet_3[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_3 = sheet_3.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
 # sheet_4 : shopee來源中，各品牌產品的評論內容$各評論之星等
 shopee_df = df[df['ecommerce'] == 'shopee']    # 篩選 source = shopee 的資料
-sheet_4 = shopee_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'matched_topic']].reset_index(drop=True)).reset_index()
+sheet_4 = shopee_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 sheet_4 = sheet_4.drop(columns=['level_2'])
 sheet_4['Group'] = "L'Oreal"  # 新增Group欄位
-sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'matched_topic']]  # 重新排序欄位
+sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
@@ -148,7 +146,7 @@ sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依�
 # 輸出報表
 # 檔案名稱
 excel_filename = f'電商MonthlyReport_{last_month.year}_{last_month.month}.xlsx'
-
+# excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
 
