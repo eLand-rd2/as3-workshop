@@ -175,7 +175,9 @@ if __name__ == '__main__':
     last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
     first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
     last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+    first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
+    last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
 
-    cli(first_day_of_last_month, last_day_of_last_month)
+    cli(first_day_dt, last_day_dt)
 
 
