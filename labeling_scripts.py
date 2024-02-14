@@ -123,8 +123,11 @@ def process_sentiment(reviews):
         review_id = review.id
         text = review.text
 
-        # 利用 get_sentiment 進行維度標記
-        sentiment = get_sentiment(1, text)
+        if text is not None:
+            sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
+        else:
+            text = ''  # 將 text 的值設置為空字符串
+            sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
 
         # 將維度標記更新回資料庫
         if sentiment:
@@ -146,8 +149,11 @@ def process_topic(reviews):
         review_id = review.id
         text = review.text
 
-        # 利用 match_topics 進行維度標記
-        matched_topics = match_topics(text)
+        if text is not None:
+            matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
+        else:
+            text = ''  # 將 text 的值設置為空字符串
+            matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
 
         # 將維度標記更新回資料庫
         if matched_topics:
