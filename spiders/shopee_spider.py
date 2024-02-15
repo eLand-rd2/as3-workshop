@@ -3,11 +3,9 @@ from spiders.base import BaseSpider
 import requests
 from datetime import datetime, timedelta
 import time
-from crud.product import create_product, get_product, create_or_get_product
-from crud.brand import create_brand, get_brand, create_or_get_brand
-from schemas.brand import BrandCreate
-from schemas.product import ProductCreate
-from crud.review import create_review, get_review, append_topic
+from crud.product import create_or_get_product
+from crud.brand import create_or_get_brand
+from crud.review import create_review
 from schemas.review import ReviewCreate
 
 
@@ -57,35 +55,36 @@ class ShopeeSpider(BaseSpider):
                     'ecommerce': 'shopee',
                     'brand':
                         {
-                        'name':brand_name,
-                        'product': product_name,
+                            'name': brand_name,
+                            'product': product_name,
                         },
                     'review': [
                         {
                             'rating': stars,
                             'text': comment,
-                            'post_time': post_time
+                            'post_time': post_time,
+                            'sentiment': '中立'
                         }
                     ]
                 }
                 payload.append(product_dict)
         return payload
 
-    def save_data(self, db_session, payload):
-        db_session = get_session
+    def save_data(self, payload):
+        db_session = get_session()
         for product in payload:
             brand_name = product['brand']['name']
             ecommerce = product['ecommerce']
-            create_or_get_brand(db_session, brand_name, ecommerce)
+            brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce)
             product_data = product['brand']['product']
-            product_in_db = create_or_get_product(db_session, product_data)
+            product_in_db = create_or_get_product(db_session, product_data, brand_in_db.id)
 
-            for review in payload['review']:
+            for review in product['review']:
                 review_payload = review.copy()
                 review_payload['product_id'] = product_in_db.id
                 review_create = ReviewCreate(**review_payload)
                 create_review(db_session, review_create)
-
+        db_session.close()
         # for product in payload:
         #     product_name = product['brand']['product']
         #     product_in_db = create_or_get_product(db_session, product_data=product_name)
@@ -103,7 +102,7 @@ class ShopeeSpider(BaseSpider):
         #         create_product(db_session, product_create)
         # db_session.commit()
         #
-        # for review in product['reviews']:
+        # for review in product['review']:
         #     review_in_db = get_review(db_session, text=review['text'])
         #     if review_in_db is None:
         #         review_payload = review.copy()
