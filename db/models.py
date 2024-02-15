@@ -53,9 +53,10 @@ class Review(Base):
     post_time: Mapped[datetime]
     rating: Mapped[float] = mapped_column(default=3.0)
     created_at: Mapped[datetime] = mapped_column(default=func.now())
+    sentiment: Mapped[str]
 
-    sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
-    sentiment: Mapped['Sentiment'] = relationship('Sentiment', back_populates='reviews')
+    # sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
+    # sentiment: Mapped['Sentiment'] = relationship('Sentiment', back_populates='reviews')
 
     product_id: Mapped[int] = mapped_column(ForeignKey('product.id'))
     product: Mapped['Product'] = relationship(back_populates='reviews')
