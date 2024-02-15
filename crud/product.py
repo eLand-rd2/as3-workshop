@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from db.models import Product, Category
-from schemas.product import ProductCreate, ProductUpdate
+from schemas.product import ProductCreate, ProductUpdate, ProductBase
 
 
 def create_product(db: Session, product: ProductCreate):
@@ -11,16 +11,15 @@ def create_product(db: Session, product: ProductCreate):
     db.refresh(db_product)
     return db_product
 
-def create_or_get_product(db: Session, product: ProductBase):
-    existing_product = db.query(product).filter(product.name == product_name).first()
+def create_or_get_product(db: Session, product_data: ProductBase):
+    existing_product = db.query(Product).filter(Product.name == product_data.name).first()
     if existing_product:
-        print("品牌名稱：" + str(product_name) + "id:" +  int(existing_product.id))
+        print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
         return existing_product
     else:
-        product_data = ProductCreate(name=product_name,
-                                     category=category,
-                                     brand_id=brand_id)
-        new_product = Product(**product_data.dict())
+        new_product = Product(name=product_data.name,
+                                     category=product_data.category,
+                                     brand_id=product_data.brand_id)
         db.add(new_product)
         db.commit()
         db.refresh(new_product)
