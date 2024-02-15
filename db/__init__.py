@@ -6,3 +6,6 @@ from .models import Brand
 from .models import Product
 from .models import Review
 from .models import ReviewTopicAssociation
+from .models import Category
+from .models import Topic
+from .models import ProductCategoryAssociation
