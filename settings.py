@@ -1,33 +1,33 @@
 from pathlib import Path
 
 import spiders
-from spiders.momo_spider import MomoSpider
-from spiders.shopee_spider import ShopeeSpider
-from spiders.ptt_spider import PttSpider
+# from spiders.momo_spider import MomoSpider
+# from spiders.shopee_spider import ShopeeSpider
+# from spiders.ptt_spider import PttSpider
 
 BASE_DIR = Path(__file__).parent
 
 database_url = f'sqlite:///{BASE_DIR}/as3_data.db'
-spider_target = [
-    {
-        "spider_class": MomoSpider,
-        "urls": [
-            'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index&kw=LANCOME%20%E8%98%AD%E8%94%BB'
-        ]
-    },
-    {
-        "spider_class": ShopeeSpider,
-        "urls": [
-            'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=1&offset=0&shopid=779524889&userid=779508643'
-        ]
-    },
+# spider_target = [
+#     {
+#         "spider_class": MomoSpider,
+#         "urls": [
+#             'https://www.momoshop.com.tw/goods/GoodsDetail.jsp?i_code=6804476&Area=search&mdiv=403&oid=1_2&cid=index&kw=LANCOME%20%E8%98%AD%E8%94%BB'
+#         ]
+#     },
+#     {
+#         "spider_class": ShopeeSpider,
+#         "urls": [
+#             'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=1&offset=0&shopid=779524889&userid=779508643'
+#         ]
+#     },
     # {
     #     "spider_class": 'spiders.ptt_spider.PttSpider',
     #     'urls': [
     #         'https://www.ptt.cc/bbs/MakeUp/index.html'
     #     ]
     # }
-]
+# ]
 
 categories = {
     "保養": ["精華液", "乳液", "乳霜", "精華", "凝膠"],
