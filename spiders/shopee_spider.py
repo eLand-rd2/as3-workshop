@@ -1,9 +1,10 @@
+from db.database import get_session
 from spiders.base import BaseSpider
 import requests
 from datetime import datetime, timedelta
 import time
-from crud.product import create_product, get_product
-from crud.brand import create_brand, get_brand
+from crud.product import create_product, get_product, create_or_get_product
+from crud.brand import create_brand, get_brand, create_or_get_brand
 from schemas.brand import BrandCreate
 from schemas.product import ProductCreate
 from crud.review import create_review, get_review, append_topic
@@ -71,28 +72,42 @@ class ShopeeSpider(BaseSpider):
         return payload
 
     def save_data(self, db_session, payload):
+        db_session = get_session
         for product in payload:
-            product_name = product['brand']['product']
-            product_in_db = get_product(db_session, product_name=product_name)
+            brand_name = product['brand']['name']
+            ecommerce = product['ecommerce']
+            create_or_get_brand(db_session, brand_name, ecommerce)
+            product_data = product['brand']['product']
+            product_in_db = create_or_get_product(db_session, product_data)
 
-            if product_in_db is None:
-                brand_name = product['brand']['name']
-                brand_in_db = get_brand(db_session, brand_name=brand_name)
-                if brand_in_db is None:
-                    brand_payload = product['brand'].copy()
-                    brand = BrandCreate(**brand_payload)
-                    brand_in_db = create_brand(db_session, brand)
-                product_payload = product.copy()
-                product_payload['brand_name'] = brand_in_db.name
-                product_create = ProductCreate(**product_payload)
-                create_product(db_session, product_create)
-        db_session.commit()
-
-        for review in product['reviews']:
-            review_in_db = get_review(db_session, review_text=review['text'])
-            if review_in_db is None:
+            for review in payload['review']:
                 review_payload = review.copy()
                 review_payload['product_id'] = product_in_db.id
                 review_create = ReviewCreate(**review_payload)
                 create_review(db_session, review_create)
-        db_session.commit()
+
+        # for product in payload:
+        #     product_name = product['brand']['product']
+        #     product_in_db = create_or_get_product(db_session, product_data=product_name)
+        #
+        #     if product_in_db is None:
+        #         brand_name = product['brand']['name']
+        #         brand_in_db = get_brand(db_session, name=brand_name)
+        #         if brand_in_db is None:
+        #             brand_payload = product['brand'].copy()
+        #             brand = BrandCreate(**brand_payload)
+        #             brand_in_db = create_brand(db_session, brand)
+        #         product_payload = product.copy()
+        #         product_payload['name'] = brand_in_db.name
+        #         product_create = ProductCreate(**product_payload)
+        #         create_product(db_session, product_create)
+        # db_session.commit()
+        #
+        # for review in product['reviews']:
+        #     review_in_db = get_review(db_session, text=review['text'])
+        #     if review_in_db is None:
+        #         review_payload = review.copy()
+        #         review_payload['product_id'] = product_in_db.id
+        #         review_create = ReviewCreate(**review_payload)
+        #         create_review(db_session, review_create)
+        # db_session.commit()
