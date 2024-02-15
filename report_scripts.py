@@ -42,7 +42,7 @@ api_key = settings.sentiment_api_key
 api_url = settings.sentiment_api_url
 
 def get_sentiment(doc_id, doc_content):
-    responses = []
+    # responses = []
     headers = {
         'Content-Type': "application/json",
         'X-API-Key': api_key,
@@ -60,11 +60,11 @@ def get_sentiment(doc_id, doc_content):
     })
 
     session = requests.session()
-    for doc in doc_content:
-        response = session.post(api_url, headers=headers, data=payload)
-    responses.append(json.loads(response.text))
-
-    return responses
+    # for doc in doc_content:
+    response = session.post(api_url, headers=headers, data=payload)
+    responses = json.loads(response.text)
+    sentiment_tags = responses['data'][0]['sentiment_tag']
+    return sentiment_tags
 
 
 def find_matched_topic(row):
@@ -84,24 +84,13 @@ if __name__ == '__main__':
     }
     df = pd.DataFrame(data)
 
-    df['match_category'] = df['product'].apply(match_category)
-    # df['match_topic'] = df['reviews'].apply(match_topics)
+    # df['match_category'] = df['product'].apply(match_category)
+    df['match_topic'] = df['reviews'].apply(match_topics)
     print(df)
 
 '''
 if __name__ == '__main__':
-    doc = [
-        "服務很好",
-        "服務很不好",
-        "價格很貴",
-        "價格很便宜",
-        "品質很差",
-        "態度超不好",
-        "服務",
-    ]
-
-    sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(doc))
-    #只擷取 sentiment_tag 的值
-    sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
-    print(type(sentiment_tags))
+    doc = "服務很不好"
+    sentiment = get_sentiment(1, doc)
+    print(sentiment)
 '''

@@ -123,14 +123,15 @@ def process_sentiment(reviews):
         review_id = review.id
         text = review.text
 
-        # 利用 get_sentiment 進行維度標記
-        sentiment = map(lambda x: get_sentiment(x[0] + 1, x[1]), enumerate(text))
-        #只擷取 sentiment_tag 的值
-        sentiment_tags = [result[0]['data'][0]['sentiment_tag']for result in sentiment]
+        if text is not None:
+            sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
+        else:
+            text = ''  # 將 text 的值設置為空字符串
+            sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
 
         # 將維度標記更新回資料庫
-        if sentiment_tags:
-            for sentiment_name in sentiment_tags:
+        if sentiment:
+            for sentiment_name in sentiment:
                 # 比對 db 中是否已有此維度，若無則創建維度
                 sentiment_in_db = get_sentiment_name(session, sentiment_name)
                 if not sentiment_in_db:
@@ -148,8 +149,11 @@ def process_topic(reviews):
         review_id = review.id
         text = review.text
 
-        # 利用 match_topics 進行維度標記
-        matched_topics = match_topics(text)
+        if text is not None:
+            matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
+        else:
+            text = ''  # 將 text 的值設置為空字符串
+            matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
 
         # 將維度標記更新回資料庫
         if matched_topics:
@@ -177,7 +181,9 @@ if __name__ == '__main__':
     last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
     first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
     last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+    first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
+    last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
 
-    cli(first_day_of_last_month, last_day_of_last_month)
+    cli(first_day_dt, last_day_dt)
 
 
