@@ -43,7 +43,7 @@ class ShopeeSpider(BaseSpider):
             # 將UTC轉換為本地時間
             local_date_time_obj = utc_date_time_obj + local_timezone_offset
             # 格式化日期時間
-            post_time = local_date_time_obj.strftime("%Y-%m-%d %H:%M:%S")
+            post_time = local_date_time_obj.strftime("%Y-%m-%d")
             time.sleep(1)
 
             product_items = ratings['product_items']
