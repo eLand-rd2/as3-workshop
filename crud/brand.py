@@ -18,14 +18,14 @@ def get_brand(db: Session, name: str):
     return db_brand
 
 
-def create_or_get_brand(db: Session, brand_name: str, ecommerce: str) -> Brand:
+def create_or_get_brand(db: Session, brand_name: str, ecommerce: str, shop_id: str) -> Brand:
     existing_brand = db.query(Brand).filter(Brand.name == brand_name).first()
     if existing_brand:
         print("品牌名稱：" + str(brand_name) + " id: " + str(existing_brand.id))
         return existing_brand
 
     else:
-        brand_data = BrandCreate(name=brand_name, ecommerce=ecommerce)
+        brand_data = BrandCreate(name=brand_name, ecommerce=ecommerce, shop_id=shop_id)
         new_brand = Brand(**brand_data.dict())
         db.add(new_brand)
         db.commit()
