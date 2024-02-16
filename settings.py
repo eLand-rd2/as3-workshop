@@ -7,7 +7,7 @@ import spiders
 
 BASE_DIR = Path(__file__).parent
 
-database_url = f'sqlite:///{BASE_DIR}/as3_data.db'
+database_url = 'mysql+pymysql://yijialee:loveleeyoungji@172.18.30.31:3306/analysis_temp'
 # spider_target = [
 #     {
 #         "spider_class": MomoSpider,
