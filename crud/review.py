@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from db.models import Review, Topic, ReviewTopicAssociation
 
-from schemas.review import ReviewCreate, ReviewUpdate
+from schemas.review import ReviewCreate, ReviewUpdate, ReviewBase
 from schemas.topic import TopicCreate
 
 def create_review(db: Session, review: ReviewCreate): # 這個是給廣興用來存進去的
@@ -12,6 +12,22 @@ def create_review(db: Session, review: ReviewCreate): # 這個是給廣興用來
     db.refresh(db_review)
     return db_review
 
+def create_or_get_review(db: Session, review: ReviewBase, product_id):
+    existing_review = db.query(Review).filter(Review.order_id == review.order_id).first()
+    if existing_review:
+        # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
+        return existing_review
+    else:
+        new_review = Review(text = review.text,
+                            post_time = review.post_time,
+                            rating = review.rating,
+                            sentiment = review.sentiment,
+                            order_id = review.order_id,
+                            product_id = product_id)
+        db.add(new_review)
+        db.commit()
+        db.refresh(new_review)
+        return new_review
 
 def get_review(db: Session, review_id: int):
     return db.query(Review).filter(Review.id == review_id).first()
