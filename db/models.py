@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, DateTime, String, Float
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
@@ -10,8 +10,9 @@ from . import Base
 class Brand(Base):
     __tablename__ = 'brand'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    ecommerce: Mapped[str] = mapped_column(default=None)
+    name: Mapped[str] = mapped_column(String(50))
+    ecommerce: Mapped[str] = mapped_column(String(50), default=None)
+    shop_id: Mapped[str] = mapped_column(String(20), default=None) #default=None 接受資料有空值
 
     products: Mapped[List['Product']] = relationship('Product', back_populates='brand')
 
@@ -19,8 +20,9 @@ class Brand(Base):
 class Product(Base):
     __tablename__ = 'product'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    rating: Mapped[float] = mapped_column(default=3.0)
+    name: Mapped[str] = mapped_column(String(60))
+    rating: Mapped[float] = mapped_column(Float, default=3.0)
+    item_id: Mapped[str] = mapped_column(String(20), default=None)
 
     brand_id: Mapped[int] = mapped_column(ForeignKey('brand.id'))
     brand: Mapped['Brand'] = relationship('Brand', back_populates='products')
@@ -49,11 +51,12 @@ class ReviewTopicAssociation(Base): # 用於建立reviews & topics 之間的多�
 class Review(Base):
     __tablename__ = 'reviews'
     id: Mapped[int] = mapped_column(primary_key=True)
-    text: Mapped[str]
+    text: Mapped[str] = mapped_column(String(200))
     post_time: Mapped[datetime]
-    rating: Mapped[float] = mapped_column(default=3.0)
+    rating: Mapped[float] = mapped_column(Float, default=3.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.timezone('Asia/Taipei', func.now()))
-    sentiment: Mapped[str]
+    sentiment: Mapped[str] = mapped_column(String(5))
+    order_id: Mapped[str] = mapped_column(String(20), default=None)
 
     # sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
     # sentiment: Mapped['Sentiment'] = relationship('Sentiment', back_populates='reviews')
@@ -75,7 +78,7 @@ class Review(Base):
 class Topic(Base):
     __tablename__ = 'topic'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(String(50))
 
     reviews: Mapped[List['Review']] = relationship(
         secondary='review_topic_association',
@@ -106,7 +109,7 @@ class ProductCategoryAssociation(Base):  # 用於建立products & categories 之
 class Category(Base):
     __tablename__ = 'categories'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(String(50))
 
     products: Mapped[List['Product']] = relationship(
         secondary='product_category_association',
