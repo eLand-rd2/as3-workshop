@@ -29,7 +29,6 @@ def test_run_ShopeeSpider():
 
     for j in shop:
         for n in range(0, 901, 100) :
-            print(f'no.{n}')
             url = f'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=100&offset={n}&shopid={j}&userid=779508643'
             response = spider.request_page(url, headers=None, cookies=None)
             payload = spider.parse_page(response)
