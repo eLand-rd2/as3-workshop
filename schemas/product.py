@@ -7,6 +7,7 @@ class ProductBase(BaseModel):
     name: str
     rating: Optional[float] = 3.0
     category: Optional[str] = 'None'
+    item_id: str
 
 
 
@@ -21,6 +22,7 @@ class ProductUpdate(ProductBase):
     rating: Optional[float] = None
     category: Optional[str] = None
     brand_id: Optional[int] = None
+    item_id: Optional[str] = None
 
 
 # 用于读取产品信息的模型，包含嵌套的 Brand

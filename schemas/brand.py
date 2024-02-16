@@ -6,6 +6,7 @@ from typing import Optional, List
 class BrandBase(BaseModel):
     name: str
     ecommerce: Optional[str] = None
+    shop_id: str
 
 
 # 創建模型
@@ -17,6 +18,7 @@ class BrandCreate(BrandBase):
 class BrandUpdate(BaseModel):
     name: Optional[str] = None
     ecommerce: Optional[str] = None
+    shop_id: Optional[str] = None
 
 
 # 閱讀模型

@@ -8,6 +8,7 @@ class ReviewBase(BaseModel):
     rating: float
     sentiment: Optional[str] = '中立'
     post_time: datetime
+    order_id: str
 
 
 class ReviewCreate(ReviewBase):
@@ -19,6 +20,7 @@ class ReviewUpdate(BaseModel):
     rating: Optional[float] = None
     sentiment: Optional[str] = None
     post_time: Optional[datetime] = None
+    order_id: Optional[str] = None
 
 class ReviewRead(ReviewBase):
     id: int
