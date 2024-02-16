@@ -20,12 +20,6 @@ def run_spider_task():
     # 從settings拿target_urls
     targets = settings.spider_target
 
-    # 藉由CLICK取得爬文間隔、停止時間的參數
-    # interval = 86400 #一天 86,400 秒
-    # stop_time = 180 #三小時 180 秒
-    # click.echo(f'Starting scraping tasks with an interval of {interval} seconds.')
-    # click.echo(f'Stopping scraping tasks after {stop_time} seconds.')
-
     # 建立 schedule 依參數執行爬文任務
     schedule.every().day.at("10:00").do(run_spiders, targets)
     print('每天早上10:00執行爬文')

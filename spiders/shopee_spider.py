@@ -13,6 +13,7 @@ from schemas.review import ReviewCreate
 class ShopeeSpider(BaseSpider):
     def request_page(self, url, headers=None, cookies=None):
         response = requests.get(url, headers=headers, cookies=cookies)
+        time.sleep(3)
 
         return response
 
@@ -21,14 +22,14 @@ class ShopeeSpider(BaseSpider):
         data = response.json()
         payload = []
         shopid_brand_mapping = {
-            779524889: 'LANCOME 蘭蔻',
-            779422436: "Kiehl's 契爾氏",
-            37004578: '巴黎萊雅',
-            6678703: '理膚寶水',
-            1183: 'CeraVe 適樂膚',
+            779524889: 'LANCOME',
+            779422436: "Kiehl's",
+            37004578: 'Loreal paris',
+            56678703: 'La Roche-Posay',
+            70001183: 'CeraVe',
             37008598: 'maybelline',
-            747940835: 'shu uemura 植村秀',
-            774925409: 'BIOTHERM 碧兒泉'
+            747940835: 'shu uemura',
+            774925409: 'BIOTHERM'
         }
         for ratings in data['data']['items']:
             stars = ratings['rating_star']

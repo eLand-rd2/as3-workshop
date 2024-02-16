@@ -64,33 +64,33 @@ def process_reviews(begin, end, page_size=100):
     finally:
         session.close()  # 關閉會話
 
-@click.command()
-def process_products(page_size=100):
-    # 建立db連線
-    session = get_session()
-    try:
-        offset = 0
-        while True:
-            # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
-            query_result = get_products(session, limit=page_size, offset=offset)
-
-            if not query_result:
-                break  # 沒有更多資料時
-
-            process_category(query_result)
-
-            # 更新 offset
-            offset += page_size
-
-            # 若處理完畢所有資料，跳出迴圈
-            if len(query_result) < page_size:
-                break
-
-    except Exception as e:
-        print(f"Error fetching data from database: {str(e)}")
-
-    finally:
-        session.close()  # 關閉會話
+# @click.command()
+# def process_products(page_size=100):
+#     # 建立db連線
+#     session = get_session()
+#     try:
+#         offset = 0
+#         while True:
+#             # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
+#             query_result = get_products(session, limit=page_size, offset=offset)
+#
+#             if not query_result:
+#                 break  # 沒有更多資料時
+#
+#             process_category(query_result)
+#
+#             # 更新 offset
+#             offset += page_size
+#
+#             # 若處理完畢所有資料，跳出迴圈
+#             if len(query_result) < page_size:
+#                 break
+#
+#     except Exception as e:
+#         print(f"Error fetching data from database: {str(e)}")
+#
+#     finally:
+#         session.close()  # 關閉會話
 
 
 def process_category(products):
@@ -172,7 +172,7 @@ def process_topic(reviews):
 def cli():
     pass
 
-cli.add_command(process_products)
+# cli.add_command(process_products)
 cli.add_command(process_reviews)
 
 
