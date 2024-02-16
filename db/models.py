@@ -52,7 +52,7 @@ class Review(Base):
     text: Mapped[str]
     post_time: Mapped[datetime]
     rating: Mapped[float] = mapped_column(default=3.0)
-    created_at: Mapped[datetime] = mapped_column(default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.timezone('Asia/Taipei', func.now()))
     sentiment: Mapped[str]
 
     # sentiment_id: Mapped[int] = mapped_column(ForeignKey("sentiment.id"))
