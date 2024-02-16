@@ -25,11 +25,15 @@ from spiders.shopee_spider import ShopeeSpider
 
 def test_run_ShopeeSpider():
     spider = ShopeeSpider()
-    url = 'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=1&offset=0&shopid=779524889&userid=779508643'
+    shop = ['779524889', '779422436', '37004578', '56678703', '70001183', '37008598', '747940835', '774925409']
 
-    response = spider.request_page(url, headers=None, cookies=None)
-    payload = spider.parse_page(response)
-    records = spider.save_data(payload)
+    for j in shop:
+        for n in range(0, 901, 100) :
+            print(f'no.{n}')
+            url = f'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=100&offset={n}&shopid={j}&userid=779508643'
+            response = spider.request_page(url, headers=None, cookies=None)
+            payload = spider.parse_page(response)
+            spider.save_data(payload)
 
 
     # 從資料庫檢索資料
