@@ -12,18 +12,18 @@ def create_review(db: Session, review: ReviewCreate): # 這個是給廣興用來
     db.refresh(db_review)
     return db_review
 
-def create_or_get_review(db: Session, product_id, review_text, review_post_time, review_rating, review_sentiment, review_order_id):
-    existing_review = db.query(Review).filter(Review.order_id == review_order_id).first()
+def create_or_get_review(db: Session, review: ReviewBase, product_id):
+    existing_review = db.query(Review).filter(Review.order_id == review.order_id).first()
     if existing_review:
         # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
         return existing_review
     else:
-        review_data = ReviewCreate(text = review_text,
-                            post_time = review_post_time,
-                            rating = review_rating,
-                            sentiment = review_sentiment,
-                            order_id = review_order_id,
-                            product_id = product_id)
+        review_data = ReviewCreate(text = review.text,
+                                  post_time = review.post_time,
+                                  rating = review.rating,
+                                  sentiment = review.sentiment,
+                                  order_id = review.order_id,
+                                  product_id = product_id)
         new_review = Review(**review_data.dict())
         db.add(new_review)
         db.commit()
