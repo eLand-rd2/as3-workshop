@@ -109,7 +109,7 @@ class ProductCategoryAssociation(Base):  # 用於建立products & categories 之
 class Category(Base):
     __tablename__ = 'categories'
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(50), default=None)
 
     products: Mapped[List['Product']] = relationship(
         secondary='product_category_association',
