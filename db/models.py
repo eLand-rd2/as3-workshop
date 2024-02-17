@@ -62,7 +62,7 @@ class ReviewTopicAssociation(Base): # 用於建立reviews & topics 之間的多�
 class Review(Base):
     __tablename__ = 'reviews'
     id: Mapped[int] = mapped_column(primary_key=True)
-    text: Mapped[str] = mapped_column(String(200))
+    text: Mapped[str] = mapped_column(String(500))
     post_time: Mapped[datetime]
     rating: Mapped[float] = mapped_column(Float, default=3.0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=default_created_at)
