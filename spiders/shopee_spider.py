@@ -56,25 +56,26 @@ class ShopeeSpider(BaseSpider):
 
                 product_dict = {
                     'ecommerce': 'shopee',
-                    'brand':[
+                    'brand':
                         {
                             'name': brand_name,
                             'product': product_name,
                             'shop_id': shopid,
-                        }],
-                    'product':[
+                        },
+                    'product':
                         {
-                            'name':product_name,
+                            'name': product_name,
                             'item_id': itemid,
-                        }],
-                    'review':[
+
+                        },
+                    'review':
                         {
-                            'order_id': orderid,
                             'rating': stars,
                             'text': comment,
                             'post_time': post_time,
-                            'sentiment': '中立'
-                        }]
+                            'sentiment': '中立',
+                            'order_id': orderid
+                        }
 
                 }
                 payload.append(product_dict)
@@ -83,20 +84,20 @@ class ShopeeSpider(BaseSpider):
     def save_data(self, payload):
         db_session = get_session()
         for product_info in payload:
-            brand_name = product_info['brand'][0]['name']
+            brand_name = product_info['brand']['name']
             ecommerce = product_info['ecommerce']
-            shop_id = product_info['brand'][0]['shop_id']
+            shop_id = product_info['brand']['shop_id']
             brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce, shop_id)
-            product_name = product_info['product'][0]['name']
-            item_id = product_info['product'][0]['item_id']
+            product_name = product_info['product']['name']
+            item_id = product_info['product']['item_id']
             product_in_db = create_or_get_product(db_session, product_name, brand_in_db.id, item_id)
 
 
-            review_order_id = product_info['review'][0]['order_id']
-            review_text = product_info['review'][0]['text']
-            review_post_time = product_info['review'][0]['post_time']
-            review_rating = product_info['review'][0]['rating']
-            review_sentiment = product_info['review'][0]['sentiment']
-            create_or_get_review(db_session, review_order_id, review_text, review_post_time, review_rating, review_sentiment, product_in_db.id)
+            review_text = product_info['review']['text']
+            review_post_time = product_info['review']['post_time']
+            review_rating = product_info['review']['rating']
+            review_sentiment = product_info['review']['sentiment']
+            review_order_id = product_info['review']['order_id']
+            create_or_get_review(db_session, product_in_db.id, review_text, review_post_time, review_rating, review_sentiment, review_order_id)
 
         db_session.close()
