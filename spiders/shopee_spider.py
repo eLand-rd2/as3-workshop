@@ -64,17 +64,17 @@ class ShopeeSpider(BaseSpider):
                         },
                     'product':
                         {
-                            'name':product_name,
+                            'name': product_name,
                             'item_id': itemid,
-                            'category':''
+
                         },
                     'review':
                         {
-                            'order_id': orderid,
                             'rating': stars,
                             'text': comment,
                             'post_time': post_time,
-                            'sentiment': '中立'
+                            'sentiment': '中立',
+                            'order_id': orderid
                         }
 
                 }
@@ -92,7 +92,12 @@ class ShopeeSpider(BaseSpider):
             item_id = product_info['product']['item_id']
             product_in_db = create_or_get_product(db_session, product_name, brand_in_db.id, item_id)
 
-            for review in product_info['review']:
-                create_or_get_review(db_session, review, product_in_db.id)
+
+            review_text = product_info['review']['text']
+            review_post_time = product_info['review']['post_time']
+            review_rating = product_info['review']['rating']
+            review_sentiment = product_info['review']['sentiment']
+            review_order_id = product_info['review']['order_id']
+            create_or_get_review(db_session, product_in_db.id, review_text, review_post_time, review_rating, review_sentiment, review_order_id)
 
         db_session.close()
