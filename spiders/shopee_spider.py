@@ -22,22 +22,22 @@ class ShopeeSpider(BaseSpider):
         data = response.json()
         payload = []
         shopid_brand_mapping = {
-            779524889: 'LANCOME',
-            779422436: "Kiehl's",
-            37004578: 'Loreal paris',
-            56678703: 'La Roche-Posay',
-            70001183: 'CeraVe',
-            37008598: 'maybelline',
-            747940835: 'shu uemura',
-            774925409: 'BIOTHERM'
+            '779524889': 'LANCOME',
+            '779422436': "Kiehl's",
+            '37004578': 'Loreal paris',
+            '56678703': 'La Roche-Posay',
+            '70001183': 'CeraVe',
+            '37008598': 'maybelline',
+            '747940835': 'shu uemura',
+            '774925409': 'BIOTHERM'
         }
         for ratings in data['data']['items']:
             stars = ratings['rating_star']
             comment = ratings['comment']
-            shopid = ratings['shopid']
+            shopid = str(ratings['shopid'])
             ctime = ratings['ctime']
-            itemid = ratings['itemid']
-            oderid = ratings['oderid']
+            itemid = str(ratings['itemid'])
+            orderid = str(ratings['orderid'])
             brand_name = shopid_brand_mapping.get(shopid)
             utc_date_time_obj = datetime.utcfromtimestamp(ctime)
 
@@ -56,26 +56,27 @@ class ShopeeSpider(BaseSpider):
 
                 product_dict = {
                     'ecommerce': 'shopee',
-                    'brand':[
+                    'brand':
                         {
                             'name': brand_name,
                             'product': product_name,
                             'shop_id': shopid,
-                        }],
-                    'product':[
+                        },
+                    'product':
                         {
                             'name':product_name,
-                            'item_id': itemid
-                        }],
-                    'review': [
+                            'item_id': itemid,
+                            'category':''
+                        },
+                    'review':
                         {
-                            'oder_id': oderid,
+                            'order_id': orderid,
                             'rating': stars,
                             'text': comment,
                             'post_time': post_time,
                             'sentiment': '中立'
                         }
-                    ]
+
                 }
                 payload.append(product_dict)
         return payload
@@ -85,10 +86,11 @@ class ShopeeSpider(BaseSpider):
         for product_info in payload:
             brand_name = product_info['brand']['name']
             ecommerce = product_info['ecommerce']
-
-            brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce)
-            product_data = product_info['brand']['product']
-            product_in_db = create_or_get_product(db_session, product_data, brand_in_db.id)
+            shop_id = product_info['brand']['shop_id']
+            brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce, shop_id)
+            product_name = product_info['product']['name']
+            item_id = product_info['product']['item_id']
+            product_in_db = create_or_get_product(db_session, product_name, brand_in_db.id, item_id)
 
             for review in product_info['review']:
                 create_or_get_review(db_session, review, product_in_db.id)
