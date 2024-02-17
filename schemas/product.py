@@ -6,7 +6,7 @@ from typing import Optional
 class ProductBase(BaseModel):
     name: str
     rating: Optional[float] = 3.0
-    categories: Optional[str] = '保養'
+    categories: Optional[list[str]] = ['保養']
     item_id: str
 
 
