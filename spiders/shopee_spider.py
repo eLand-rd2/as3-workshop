@@ -13,7 +13,7 @@ from schemas.review import ReviewCreate
 class ShopeeSpider(BaseSpider):
     def request_page(self, url, headers=None, cookies=None):
         response = requests.get(url, headers=headers, cookies=cookies)
-        time.sleep(3)
+        time.sleep(15)
 
         return response
 
