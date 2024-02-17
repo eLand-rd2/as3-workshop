@@ -18,12 +18,13 @@ def create_or_get_review(db: Session, review: ReviewBase, product_id):
         # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
         return existing_review
     else:
-        new_review = Review(text = review.text,
-                            post_time = review.post_time,
-                            rating = review.rating,
-                            sentiment = review.sentiment,
-                            order_id = review.order_id,
-                            product_id = product_id)
+        review_data = ReviewCreate(text = review.text,
+                                  post_time = review.post_time,
+                                  rating = review.rating,
+                                  sentiment = review.sentiment,
+                                  order_id = review.order_id,
+                                  product_id = product_id)
+        new_review = Review(**review_data.dict())
         db.add(new_review)
         db.commit()
         db.refresh(new_review)
