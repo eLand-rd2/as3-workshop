@@ -6,6 +6,17 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
 
+import pytz
+
+# 获取亚洲/台北时区
+taipei_timezone = pytz.timezone('Asia/Taipei')
+
+# 定义默认值函数
+def default_created_at():
+    # 获取当前时间并转换为亚洲/台北时区
+    current_time_taipei = datetime.now(taipei_timezone)
+    return current_time_taipei
+
 
 class Brand(Base):
     __tablename__ = 'brand'
@@ -54,7 +65,7 @@ class Review(Base):
     text: Mapped[str] = mapped_column(String(200))
     post_time: Mapped[datetime]
     rating: Mapped[float] = mapped_column(Float, default=3.0)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.timezone('Asia/Taipei', func.now()))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=default_created_at)
     sentiment: Mapped[str] = mapped_column(String(5))
     order_id: Mapped[str] = mapped_column(String(20), default=None)
 
