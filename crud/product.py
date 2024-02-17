@@ -17,11 +17,13 @@ def create_or_get_product(db: Session, product_name, brand_id, item_id):
         # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
         return existing_product
     else:
+        product_data = ProductCreate(name=product_name, brand_id=brand_id, item_id=item_id)
+        new_product = Product(name=product_data.name, brand_id=product_data.brand_id, item_id=product_data.item_id)
 
-        product_data = ProductCreate(name=product_name,
-                                     brand_id=brand_id,
-                                     item_id=item_id)
-        new_product = Product(**product_data.dict())
+        # product_data = ProductCreate(name=product_name,
+        #                              brand_id=brand_id,
+        #                              item_id=item_id)
+        # new_product = Product(**product_data.dict())
         db.add(new_product)
         db.commit()
         db.refresh(new_product)
