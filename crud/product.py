@@ -20,7 +20,7 @@ def create_or_get_product(db: Session, product_name, brand_id, item_id):
 
         product_data = ProductCreate(name=product_name,
                                      brand_id=brand_id,
-                              item_id=item_id)
+                                     item_id=item_id)
         new_product = Product(**product_data.dict())
         db.add(new_product)
         db.commit()
