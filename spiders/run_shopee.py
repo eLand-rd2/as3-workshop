@@ -1,7 +1,7 @@
 from spiders.shopee_spider import ShopeeSpider
 
 spider = ShopeeSpider()
-shops = ['779524889']
+shops = ['56678703']
 # , '779422436', '37004578', '56678703', '70001183', '37008598', '747940835', '774925409'
 
 for shop in shops:
