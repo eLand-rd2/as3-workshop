@@ -11,15 +11,17 @@ def create_product(db: Session, product: ProductCreate):
     db.refresh(db_product)
     return db_product
 
-def create_or_get_product(db: Session, product: ProductBase, brand_id):
-    existing_product = db.query(Product).filter(Product.name == product.name).first()
+def create_or_get_product(db: Session, product_name, brand_id, item_id):
+    existing_product = db.query(Product).filter(Product.name == product_name).first()
     if existing_product:
         # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
         return existing_product
     else:
-        new_product = Product(name=product.name,
+
+        product_data = ProductCreate(name=product_name,
                                      brand_id=brand_id,
-                              item_id=product.item_id)
+                              item_id=item_id)
+        new_product = Product(**product_data.dict())
         db.add(new_product)
         db.commit()
         db.refresh(new_product)

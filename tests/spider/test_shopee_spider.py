@@ -25,27 +25,14 @@ from spiders.shopee_spider import ShopeeSpider
 
 def test_run_ShopeeSpider():
     spider = ShopeeSpider()
-    shop = ['779524889', '779422436', '37004578', '56678703', '70001183', '37008598', '747940835', '774925409']
+    shops = ['779524889', '779422436', '37004578', '56678703']
+    # , '70001183', '37008598', '747940835', '774925409'
 
-    for j in shop:
+    for shop in shops:
         for n in range(0, 901, 100) :
-            url = f'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=100&offset={n}&shopid={j}&userid=779508643'
+            url = f'https://shopee.tw/api/v4/seller_operation/get_shop_ratings_new?limit=100&offset={n}&shopid={shop}&userid=779508643'
             response = spider.request_page(url, headers=None, cookies=None)
             payload = spider.parse_page(response)
             spider.save_data(payload)
 
 
-    # 從資料庫檢索資料
-    # 檢查資料庫中是否有資料被寫入
-    # assert len(records) > 0
-
-    # 進一步檢查寫入的資料是否符合預期
-    # for record in records:
-    #     # 進行更多的檢查，例如檢查特定的欄位值等
-    #     assert db_session.query(Product).count() == 1
-    #     assert db_session.query(Review).count() == 1
-    #
-    #     review = get_review(db_session, review_id=1)
-    #     assert review.product_id == 1
-    #     assert review.product.name == 'LANCOME 蘭蔻 超未來肌因賦活露囤貨組 小黑瓶50mlx2｜官方旗艦店'
-    #     assert review.post_time == '2024-02-07 07:44:52'

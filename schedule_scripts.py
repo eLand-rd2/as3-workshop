@@ -41,6 +41,17 @@ def run_spider(target):
     spider_cls_path = target['spider_class']
     spider_cls = load_class(spider_cls_path)
     urls = target['urls']
+    url_pattern = target.get('url_pattern')
+    if url_pattern:
+        tmp_urls= []
+        items = target.get('items')
+        if items:
+            for item in items:
+                tmp_url=url_pattern.format(**item)
+                tmp_urls.append(tmp_url)
+            urls.extend(tmp_urls)
+
+
     print("Spider executed at", dt.datetime.now())
     print(f"{spider_cls_path=}")
     print(f"{urls=}")

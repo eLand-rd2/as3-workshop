@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 from crud.product import create_or_get_product
 from crud.brand import create_or_get_brand
-from crud.review import create_review
+from crud.review import create_review, create_or_get_review
 from schemas.review import ReviewCreate
 
 
@@ -22,20 +22,22 @@ class ShopeeSpider(BaseSpider):
         data = response.json()
         payload = []
         shopid_brand_mapping = {
-            779524889: 'LANCOME',
-            779422436: "Kiehl's",
-            37004578: 'Loreal paris',
-            56678703: 'La Roche-Posay',
-            70001183: 'CeraVe',
-            37008598: 'maybelline',
-            747940835: 'shu uemura',
-            774925409: 'BIOTHERM'
+            '779524889': 'LANCOME',
+            '779422436': "Kiehl's",
+            '37004578': 'Loreal paris',
+            '56678703': 'La Roche-Posay',
+            '70001183': 'CeraVe',
+            '37008598': 'maybelline',
+            '747940835': 'shu uemura',
+            '774925409': 'BIOTHERM'
         }
         for ratings in data['data']['items']:
             stars = ratings['rating_star']
             comment = ratings['comment']
-            shopid = ratings['shopid']
+            shopid = str(ratings['shopid'])
             ctime = ratings['ctime']
+            itemid = str(ratings['itemid'])
+            orderid = str(ratings['orderid'])
             brand_name = shopid_brand_mapping.get(shopid)
             utc_date_time_obj = datetime.utcfromtimestamp(ctime)
 
@@ -58,56 +60,39 @@ class ShopeeSpider(BaseSpider):
                         {
                             'name': brand_name,
                             'product': product_name,
+                            'shop_id': shopid,
                         },
-                    'review': [
+                    'product':
                         {
+                            'name':product_name,
+                            'item_id': itemid,
+                            'category':''
+                        },
+                    'review':
+                        {
+                            'order_id': orderid,
                             'rating': stars,
                             'text': comment,
                             'post_time': post_time,
                             'sentiment': '中立'
                         }
-                    ]
+
                 }
                 payload.append(product_dict)
         return payload
 
     def save_data(self, payload):
         db_session = get_session()
-        for product in payload:
-            brand_name = product['brand']['name']
-            ecommerce = product['ecommerce']
-            brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce)
-            product_data = product['brand']['product']
-            product_in_db = create_or_get_product(db_session, product_data, brand_in_db.id)
+        for product_info in payload:
+            brand_name = product_info['brand']['name']
+            ecommerce = product_info['ecommerce']
+            shop_id = product_info['brand']['shop_id']
+            brand_in_db = create_or_get_brand(db_session, brand_name, ecommerce, shop_id)
+            product_name = product_info['product']['name']
+            item_id = product_info['product']['item_id']
+            product_in_db = create_or_get_product(db_session, product_name, brand_in_db.id, item_id)
 
-            for review in product['review']:
-                review_payload = review.copy()
-                review_payload['product_id'] = product_in_db.id
-                review_create = ReviewCreate(**review_payload)
-                create_review(db_session, review_create)
+            for review in product_info['review']:
+                create_or_get_review(db_session, review, product_in_db.id)
+
         db_session.close()
-        # for product in payload:
-        #     product_name = product['brand']['product']
-        #     product_in_db = create_or_get_product(db_session, product_data=product_name)
-        #
-        #     if product_in_db is None:
-        #         brand_name = product['brand']['name']
-        #         brand_in_db = get_brand(db_session, name=brand_name)
-        #         if brand_in_db is None:
-        #             brand_payload = product['brand'].copy()
-        #             brand = BrandCreate(**brand_payload)
-        #             brand_in_db = create_brand(db_session, brand)
-        #         product_payload = product.copy()
-        #         product_payload['name'] = brand_in_db.name
-        #         product_create = ProductCreate(**product_payload)
-        #         create_product(db_session, product_create)
-        # db_session.commit()
-        #
-        # for review in product['review']:
-        #     review_in_db = get_review(db_session, text=review['text'])
-        #     if review_in_db is None:
-        #         review_payload = review.copy()
-        #         review_payload['product_id'] = product_in_db.id
-        #         review_create = ReviewCreate(**review_payload)
-        #         create_review(db_session, review_create)
-        # db_session.commit()
