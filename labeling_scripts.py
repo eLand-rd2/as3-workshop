@@ -123,23 +123,20 @@ def process_sentiment(reviews):
         review_id = review.id
         text = review.text
 
-        if text is not None:
-            sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
-        else:
-            text = ''  # 將 text 的值設置為空字符串
+        if text is not None:  # 如果text為空直，則不需進行情緒標記（因已預設為中立）
             sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
 
-        # 將維度標記更新回資料庫
-        if sentiment:
-            for sentiment_name in sentiment:
-                # 比對 db 中是否已有此維度，若無則創建維度
-                sentiment_in_db = get_sentiment_name(session, sentiment_name)
-                if not sentiment_in_db:
-                    sentiment_payload = sentiment_name.copy()
-                    sentiment_create = SentimentCreate(**sentiment_payload)
-                    sentiment_in_db = create_sentiment(session, sentiment_create)
-                # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                update_review(session, review_id=review_id, review=sentiment_in_db)
+            # 將維度標記更新回資料庫
+            if sentiment:
+                for sentiment_name in sentiment:
+                    # 比對 db 中是否已有此維度，若無則創建維度
+                    sentiment_in_db = get_sentiment_name(session, sentiment_name)
+                    if not sentiment_in_db:
+                        sentiment_payload = sentiment_name.copy()
+                        sentiment_create = SentimentCreate(**sentiment_payload)
+                        sentiment_in_db = create_sentiment(session, sentiment_create)
+                    # 比對review_id 與 topic_id，並將維度標記存入資料庫
+                    update_review(session, review_id=review_id, review=sentiment_in_db)
 
 
 def process_topic(reviews):
