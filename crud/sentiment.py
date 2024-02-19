@@ -16,22 +16,16 @@ def get_sentiment(db: Session, sentiment_id: int):
 def get_sentiment_name(db: Session, sentiment_name: str):
     return db.query(Sentiment).filter(Sentiment.name == sentiment_name).first()
 
-def update_sentiment_with_review(db: Session, reviews_id: int, sentiment: SentimentUpdate):
-    # 查詢與指定評論相關聯的sentiments
-    db_sentiments = db.query(Sentiment).\
-        join(Review).\
-        filter(Review.id == reviews_id).\
-        options(contains_eager(Sentiment.reviews)).\
-        all()
+def update_sentiment_with_review(db: Session, reviews_id, sentiment: SentimentUpdate):
+    # 從資料庫中取得特定ID的review
+    review = db.query(Review).filter(Review.id == reviews_id).first()
 
-    if db_sentiments:
-        # 更新每個找到的sentiments
-        for db_sentiment in db_sentiments:
-            update_data = sentiment.model_dump(exclude_unset=True)
-            for key, value in update_data.items():
-                setattr(db_sentiment, key, value)
+    if review:
+        # 更新review的情感
+        review.sentiment = sentiment.name
         db.commit()
-        return db_sentiments
+        db.refresh(review)
+        return review
     return None
 
 
