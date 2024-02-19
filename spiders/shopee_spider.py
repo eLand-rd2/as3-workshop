@@ -33,7 +33,7 @@ class ShopeeSpider(BaseSpider):
         }
         for ratings in data['data']['items']:
             stars = ratings['rating_star']
-            comment = ratings['comment']
+            comment = str(ratings['comment'])
             shopid = str(ratings['shopid'])
             ctime = ratings['ctime']
             itemid = str(ratings['itemid'])
