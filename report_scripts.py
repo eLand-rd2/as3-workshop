@@ -29,7 +29,8 @@ def match_topics(text):
         for topic_keyword in topic_keywords:
             pattern = topic_keyword
             if re.search(pattern, text):
-                matched_topic = {'name': topic_name}
+                matched_topic = topic_name
+                # matched_topic = {'name': topic_name}
                 # print('匹配成功')
                 matched_topics.append(matched_topic)
                 break
@@ -63,6 +64,7 @@ def get_sentiment(doc_id, doc_content):
     # for doc in doc_content:
     response = session.post(api_url, headers=headers, data=payload)
     responses = json.loads(response.text)
+    # print(responses)
     sentiment_tags = responses['data'][0]['sentiment_tag']
     return sentiment_tags
 
@@ -74,7 +76,7 @@ def find_matched_topic(row):
             matched_topics.append(topic)
     return matched_topics
 
-
+'''
 if __name__ == '__main__':
     data = {
         'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
@@ -90,7 +92,7 @@ if __name__ == '__main__':
 
 '''
 if __name__ == '__main__':
-    doc = "服務很不好"
+    doc = ""
     sentiment = get_sentiment(1, doc)
     print(sentiment)
-'''
+
