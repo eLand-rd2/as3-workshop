@@ -2,7 +2,7 @@ from report_scripts import match_topics, get_sentiment
 import pandas as pd
 
 df = pd.read_excel('MOMO.xlsx')
-# df = pd.read_excel('lancome_data.xlsx')
+
 
 # 維度標記
 df['reviews'] = df['reviews'].fillna('').astype(str)
@@ -20,10 +20,8 @@ for index, row in df.iterrows():
         df.at[index, 'sentiment'] = '中立'
 
 
-
-
-excel_filename = f'MOMO_topic.xlsx'
-# excel_filename = f'lancome_data_report.xlsx'
+# 輸出成excel
+excel_filename = f'MOMO_labeling.xlsx'
 with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     df.to_excel(writer, sheet_name='rawdata', index=False)
 

@@ -31,6 +31,7 @@ df = df[df['month'] == last_month]
 
 
 '''
+'''
 # 篩選月份
 now = datetime.now()  # 取得當前日期和時間
 last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
@@ -51,13 +52,17 @@ except Exception as e:
     print(f"Error fetching data from database: {str(e)}")
 finally:
     session.close()  # 關閉會話
+'''
+df = pd.read_excel('202401_電商評論_rawdata_0220.xlsx')
 
+df['reviews'] = df['reviews'].fillna('-').astype(str)
+df['topic'] = df['topic'].fillna('').astype(str)
 
 
 # 維度標記
 # df['topic'] = df['reviews'].apply(match_topics)  # 待刪
 # df['matched_topic'] = df.apply(find_matched_topic, axis=1)  # 比對 category 以及 topic
-df['topic'] = df['topic'].apply(lambda x: '、'.join(x))  # 調整維度標記格式
+# df['topic'] = df['topic'].apply(lambda x: '、'.join(x))  # 調整維度標記格式
 
 # 維度標記轉為二進制
 topics = settings.topics
@@ -80,7 +85,7 @@ df = pd.concat([df, sentiment_dummies], axis=1)
 
 
 # Sheet 1 : momo與shopee兩個來源中，各品牌的總評論數&平均星等
-sheet_1 = df.groupby(['ecommerce', 'brand']).agg({
+sheet_1 = df.groupby(['ecommerce', 'brand', 'Group']).agg({
     'reviews': 'count',  # 評倫則數
     'rating': 'mean',  # 當期平均星等
     'sentiment_正面': 'sum',  # 正評數
@@ -93,7 +98,7 @@ sheet_1['PN_ratio'] = sheet_1.apply(lambda row:
                                     else 0 if row['sentiment_正面'] == 0
                                     else round(row['sentiment_正面'] / row['sentiment_負面'], 2),
                                     axis=1)
-sheet_1['Group'] = "L'Oreal"  # 新增Group欄位
+# sheet_1['Group'] = "L'Oreal"  # 新增Group欄位
 sheet_1 = sheet_1[['ecommerce', 'brand', 'Group', 'reviews', 'rating', 'sentiment_正面', 'sentiment_負面', 'sentiment_中立', 'PN_ratio']]  # 重新排序欄位
 sheet_1 = sheet_1.sort_values(by=['ecommerce', 'brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
@@ -103,7 +108,7 @@ all_topic_result = []
 for key, value in settings.topics.items():
     # print(key)
     topic_result = df[df[key] == 1]
-    topic_result = topic_result.groupby(['ecommerce', 'brand']).agg({
+    topic_result = topic_result.groupby(['ecommerce', 'brand', 'Group']).agg({
         'sentiment_正面': 'sum',  # 正評數
         'sentiment_負面': 'sum',  # 負評數
         'sentiment_中立': 'sum',  # 中立數
@@ -119,33 +124,34 @@ sheet_2['PN_ratio'] = sheet_2.apply(lambda row:
                                     else 0 if row['sentiment_正面'] == 0
                                     else round(row['sentiment_正面'] / row['sentiment_負面'], 2),
                                     axis=1)
-sheet_2['Group'] = "L'Oreal"  # 新增Group欄位
+# sheet_2['Group'] = "L'Oreal"  # 新增Group欄位
 sheet_2 = sheet_2[['ecommerce', 'brand', 'Group', '維度', 'sentiment_正面', 'sentiment_負面', 'sentiment_中立', 'PN_ratio']]  # 重新排序欄位
 sheet_2 = sheet_2.sort_values(by=['ecommerce', 'brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
 # sheet 3 : momo來源中，各品牌產品的評論內容$各評論之星等
 momo_df = df[df['ecommerce'] == 'momo']    # 篩選 source = momo 的資料
-sheet_3 = momo_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
-sheet_3 = sheet_3.drop(columns=['level_2'])
-sheet_3['Group'] = "L'Oreal"  # 新增Group欄位
+sheet_3 = momo_df.groupby(['brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+# sheet_3 = sheet_3.drop(columns=['level_2'])
+# sheet_3['Group'] = "L'Oreal"  # 新增Group欄位
 sheet_3 = sheet_3[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_3 = sheet_3.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
 # sheet_4 : shopee來源中，各品牌產品的評論內容$各評論之星等
 shopee_df = df[df['ecommerce'] == 'shopee']    # 篩選 source = shopee 的資料
-sheet_4 = shopee_df.groupby(['brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
-sheet_4 = sheet_4.drop(columns=['level_2'])
-sheet_4['Group'] = "L'Oreal"  # 新增Group欄位
+sheet_4 = shopee_df.groupby(['brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+# sheet_4 = sheet_4.drop(columns=['level_2'])
+# sheet_4['Group'] = "L'Oreal"  # 新增Group欄位
 sheet_4 = sheet_4[['brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_4 = sheet_4.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
 
 
 
+
 # 輸出報表
 # 檔案名稱
-excel_filename = f'電商MonthlyReport_{last_month.year}_{last_month.month}.xlsx'
+excel_filename = f'電商MonthlyReport_2024_01.xlsx'
 # excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
@@ -159,10 +165,10 @@ with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     sheet_2.to_excel(writer, sheet_name='評論類別總表', index=False, header=['來源', '品牌', 'Group', '討論類別', '正評數', '負評數', '中立數', 'P/N比'])
 
     # 將 sheet_3 寫入 Excel 檔案中的 'MOMO' 頁籤
-    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', '產品', 'Group', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
+    sheet_3.to_excel(writer, sheet_name='MOMO', index=False, header=['品牌', 'Group', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
     # 將 sheet_4 寫入 Excel 檔案中的 'Shopee' 頁籤
-    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', '產品', 'Group', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
+    sheet_4.to_excel(writer, sheet_name='Shopee', index=False, header=['品牌', 'Group', '產品', '評論', '星等', '情緒標記', '維度標記'], engine='openpyxl')
 
 
 
