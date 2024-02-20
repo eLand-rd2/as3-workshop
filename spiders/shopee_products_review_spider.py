@@ -23,7 +23,7 @@ def parse_data(data):
     }
     for ratings in data['data']['ratings']:
         stars = ratings['rating_star']
-        comment = ratings['comment']
+        comment = str(ratings['comment'])
         shopid = str(ratings['shopid'])
         ctime = ratings['ctime']
         itemid = str(ratings['itemid'])
@@ -99,9 +99,10 @@ my_headers = {
 }
 
 items = [
-    {'itemid': '23447924412', 'shopid': '70001183'},
-    {'itemid': '22165611512', 'shopid': '70001183'}, {'itemid': '4202518311', 'shopid': '70001183'}, {'itemid': '8928455683', 'shopid': '70001183'}, {'itemid': '10316329906', 'shopid': '70001183'}, {'itemid': '12422224823', 'shopid': '70001183'}
-    ]
+{'itemid': '1391561895', 'shopid': '70001183'}, {'itemid': '1183332796', 'shopid': '70001183'}, {'itemid': '21947708806', 'shopid': '70001183'},  {'itemid': '1183316743', 'shopid': '70001183'}, {'itemid': '22356848691', 'shopid': '70001183'},
+{'itemid': '24657657910', 'shopid': '70001183'}, {'itemid': '25761751548', 'shopid': '70001183'}, {'itemid': '24912023188', 'shopid': '70001183'}, {'itemid': '23467901907', 'shopid': '70001183'}, {'itemid': '23172543713', 'shopid': '70001183'},
+{'itemid': '23609520252', 'shopid': '70001183'}, {'itemid': '23085165826', 'shopid': '70001183'}, {'itemid': '21585858047', 'shopid': '70001183'}, {'itemid': '17750272496', 'shopid': '70001183'}, {'itemid': '12589718542', 'shopid': '70001183'}
+]
 
 result = []
 
