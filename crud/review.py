@@ -42,16 +42,25 @@ def get_reviews(db: Session, begin, end, order_by='post_time', limit=100, offset
     query_result = db.query(Review).filter(Review.post_time >= begin).filter(Review.post_time <= end).order_by(order_by).limit(limit).offset(offset).all()
     return query_result
 
-def update_review(db: Session, review_id: int, review: ReviewUpdate):
+def update_review(db: Session, review_id: int, sentiment):
+
     db_review = db.query(Review).filter(Review.id == review_id).first()
+    print(f'{db_review.id=}')
     if db_review:
-        update_data = review.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
+        update_data = ReviewUpdate(id=db_review.id,
+                                   text=db_review.text,
+                                   post_time=db_review.post_time,
+                                   rating=db_review.rating,
+                                   sentiment=sentiment,
+                                   order_id=db_review.order_id)
+        for key, value in update_data:
             setattr(db_review, key, value)
         db.commit()
         db.refresh(db_review)
+        print('update完畢')
         return db_review
     return None
+
 
 
 def delete_review(db: Session, review_id: int):
