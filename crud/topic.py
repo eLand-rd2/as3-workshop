@@ -12,6 +12,18 @@ def create_topic(db: Session, topic: TopicCreate):
     db.refresh(db_topic)
     return db_topic
 
+def create_or_get_topic(db: Session, topic_name ):
+    existing_topic = db.query(Topic).filter(Topic.name == topic_name).first()
+    if existing_topic:
+        # print("品牌名稱：" + str(product_data.name) + "id:" +  int(existing_product.id))
+        return existing_topic
+    else:
+        topic_data = TopicCreate(name=topic_name)
+        new_topic = Topic(name=topic_data.name)
+        db.add(new_topic)
+        db.commit()
+        db.refresh(new_topic)
+        return new_topic
 
 def get_topic(db: Session, topic_id: int) -> Tuple[Topic, int]:
     topic = db.query(Topic).filter(Topic.id == topic_id).first()
