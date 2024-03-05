@@ -4,13 +4,13 @@ import pandas as pd
 from datetime import datetime, date
 import dateutil.relativedelta
 from schemas.topic import TopicCreate
-from crud.topic import create_topic, get_topic_name
+from crud.topic import create_or_get_topic
 from crud.review import get_reviews, append_topic, update_review
 from crud.product import get_products, append_category
 from crud.category import create_category, get_category_name
 from schemas.category import CategoryCreate
-from crud.sentiment import create_sentiment, get_sentiment_name
-from schemas.sentiment import SentimentCreate
+# from crud.sentiment import create_sentiment, get_sentiment_name
+# from schemas.sentiment import SentimentCreate
 import click
 
 
@@ -34,7 +34,7 @@ df = df[df['month'] == last_month]  # 取得上個月的資料
 
 
 
-@click.command()
+# @click.command()
 def process_reviews(begin, end, page_size=100):
 
     # 建立db連線
@@ -44,12 +44,13 @@ def process_reviews(begin, end, page_size=100):
         while True:
             # 使用 SQLAlchemy 篩選器擷取符合條件(上個月)的資料
             query_result = get_reviews(session, begin=begin, end=end, limit=page_size, offset=offset)
+            print(f'{begin=},{end=},{page_size=},{offset=}')
 
             if not query_result:
                 break  # 沒有更多資料時
 
             process_sentiment(query_result)
-            process_topic(query_result)
+            # process_topic(query_result)
 
             # 更新 offset
             offset += page_size
@@ -117,70 +118,87 @@ def process_category(products):
 
 
 def process_sentiment(reviews):
+    print('情緒標記中')
     session = get_session()
     for review in reviews:
         # 取得 Review 相關資訊
         review_id = review.id
         text = review.text
+        print(f'{review_id=},{text}')
 
-        if text is not None:  # 如果text為空直，則不需進行情緒標記（因已預設為中立）
+        if text:  # 如果text為空值，則不需進行情緒標記
+            print('text is not none')
             sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
+            print(f'{sentiment=}, {type(sentiment)}')
 
             # 將維度標記更新回資料庫
             if sentiment:
-                for sentiment_name in sentiment:
-                    # 比對 db 中是否已有此維度，若無則創建維度
-                    sentiment_in_db = get_sentiment_name(session, sentiment_name)
-                    if not sentiment_in_db:
-                        sentiment_payload = sentiment_name.copy()
-                        sentiment_create = SentimentCreate(**sentiment_payload)
-                        sentiment_in_db = create_sentiment(session, sentiment_create)
-                    # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                    update_review(session, review_id=review_id, review=sentiment_in_db)
-
+                print('回傳資料庫')
+                # 比對review_id 與 topic_id，並將維度標記存入資料庫
+                update_review(session, review_id=review_id, sentiment=sentiment)
+        else:
+            print('text is none')
 
 def process_topic(reviews):
-    session = get_session()
-    for review in reviews:
-        # 取得 Review 相關資訊
-        review_id = review.id
-        text = review.text
+    print('維度標記中')
+    try:
+        session = get_session()
+        for review in reviews:
+            # 取得 Review 相關資訊
+            review_id = review.id
+            text = review.text
 
-        if text is not None:
+            if text is not None:
+                print('text is not none')
+            else:
+                print('text is none')
+                text = ''  # 將 text 的值設置為空字符串
+
             matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
-        else:
-            text = ''  # 將 text 的值設置為空字符串
-            matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
 
-        # 將維度標記更新回資料庫
-        if matched_topics:
-            for topic_name in matched_topics:
-                # 比對 db 中是否已有此維度，若無則創建維度
-                topic_in_db = get_topic_name(session, topic_name)
-                if not topic_in_db:
-                    topic_payload = topic_name.copy()
-                    topic_create = TopicCreate(**topic_payload)
-                    topic_in_db = create_topic(session, topic_create)
-                # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
+            # 將維度標記更新回資料庫
+            if matched_topics:
+                print('回傳資料庫')
+                for topic_name in matched_topics:
+                    # 比對 db 中是否已有此維度，若無則創建維度
+                    topic_in_db = create_or_get_topic(session, topic_name)
+                    # 比對review_id 與 topic_id，並將維度標記存入資料庫
+                    append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
+    except Exception as e:
+        print(f"Error fetching data from database: {e}")
 
-
-@click.group()
-def cli():
-    pass
+# @click.group()
+# def cli():
+#     pass
 
 # cli.add_command(process_products)
-cli.add_command(process_reviews)
+# cli.add_command(process_reviews)
 
 
 if __name__ == '__main__':
-    now = datetime.now()
-    last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
-    first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
-    last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
-    first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
-    last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
+    # now = datetime.now()
+    # last_month = now - dateutil.relativedelta.relativedelta(months=1)  # 取的上個月的日期
+    # first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime('%Y-%m-%d')
+    # last_day_of_last_month = (date(now.year, now.month,1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
+    # first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
+    # last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
+    # print(f'{first_day_dt}~{last_day_dt}')
+    begin_date_str = input("請輸入起始日期（格式為YYYY-MM-DD）：")
+    try:
+        # 将日期字符串转换为 datetime 对象
+        begin_date_obj = datetime.strptime(begin_date_str, "%Y-%m-%d")
+        print("轉換後的日期為：", begin_date_obj)
+    except ValueError:
+        print("輸入的日期格式不正確，請重新輸入。")
 
-    cli(first_day_dt, last_day_dt)
+    end_date_str = input("請輸入起始日期（格式為YYYY-MM-DD）：")
+    try:
+        # 将日期字符串转换为 datetime 对象
+        end_date_obj = datetime.strptime(end_date_str, "%Y-%m-%d")
+        print("轉換後的日期為：", end_date_obj)
+    except ValueError:
+        print("輸入的日期格式不正確，請重新輸入。")
+
+    process_reviews(begin_date_obj, end_date_obj)
 
 
