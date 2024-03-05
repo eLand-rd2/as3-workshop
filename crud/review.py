@@ -47,18 +47,15 @@ def update_review(db: Session, review_id: int, sentiment):
     db_review = db.query(Review).filter(Review.id == review_id).first()
     print(f'{db_review.id=}')
     if db_review:
-        update_data = ReviewUpdate(id=db_review.id,
-                                   text=db_review.text,
-                                   post_time=db_review.post_time,
-                                   rating=db_review.rating,
-                                   sentiment=sentiment,
-                                   order_id=db_review.order_id)
-        for key, value in update_data:
-            setattr(db_review, key, value)
+        # 更新 sentiment 字段
+        db_review.sentiment = sentiment
+        # 提交事务并刷新对象
         db.commit()
         db.refresh(db_review)
-        print('update完畢')
+
+        print('更新完成')
         return db_review
+
     return None
 
 
