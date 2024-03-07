@@ -24,11 +24,11 @@ class ShopeeSpider(BaseSpider):
         shopid_brand_mapping = {
             '779524889': 'LANCOME',
             '779422436': "Kiehl's",
-            '37004578': 'Loreal paris',
+            '37004578': "L'Oreal paris",
             '56678703': 'La Roche-Posay',
             '70001183': 'CeraVe',
-            '37008598': 'maybelline',
-            '747940835': 'shu uemura',
+            '37008598': 'Maybelline',
+            '747940835': 'Shu uemura',
             '774925409': 'BIOTHERM'
         }
         for ratings in data['data']['items']:
