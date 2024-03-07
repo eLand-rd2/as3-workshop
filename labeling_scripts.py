@@ -94,27 +94,27 @@ def process_reviews(begin, end, page_size=100):
 #         session.close()  # 關閉會話
 
 
-def process_category(products):
-    session = get_session()
-    for product in products:
-        # 取得 Product 相關資訊
-        product_id = product.id
-        text = product.text
-
-        # 利用 mark_category 進行品類維度標記
-        matched_category = match_category(text)
-
-        # 將維度標記更新回資料庫
-        if matched_category:
-            for category_name in matched_category:
-                # 比對 db 中是否已有此品類維度，若無則創建維度
-                category_in_db = get_category_name(session, category_name)
-                if not category_in_db:
-                    category_payload = category_name.copy()
-                    category_create = CategoryCreate(**category_payload)
-                    category_in_db = create_category(session, category_create)
-                # 比對 product_id 與 category_id，並將維度標記存入資料庫
-                append_category(session, product_id=product_id, category_id=category_in_db.id)
+# def process_category(products):
+#     session = get_session()
+#     for product in products:
+#         # 取得 Product 相關資訊
+#         product_id = product.id
+#         text = product.text
+#
+#         # 利用 mark_category 進行品類維度標記
+#         matched_category = match_category(text)
+#
+#         # 將維度標記更新回資料庫
+#         if matched_category:
+#             for category_name in matched_category:
+#                 # 比對 db 中是否已有此品類維度，若無則創建維度
+#                 category_in_db = get_category_name(session, category_name)
+#                 if not category_in_db:
+#                     category_payload = category_name.copy()
+#                     category_create = CategoryCreate(**category_payload)
+#                     category_in_db = create_category(session, category_create)
+#                 # 比對 product_id 與 category_id，並將維度標記存入資料庫
+#                 append_category(session, product_id=product_id, category_id=category_in_db.id)
 
 
 def process_sentiment(reviews):
@@ -166,6 +166,31 @@ def process_topic(reviews):
                     append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
     except Exception as e:
         print(f"Error fetching data from database: {e}")
+
+
+def map_brand_to_group(brand):
+    if brand == 'LANCOME' or brand == 'BIOTHERM' or brand == 'CeraVe' or brand == 'Kerastase' or brand == "Kiehl's" \
+            or brand == 'La Roche-Posay' or brand == "L'Oreal Paris" or brand == "L'Oreal Professionnel" or brand == 'Maybelline' or brand == 'Shu Uemura'\
+             or brand == 'SkinCeuticals' or brand == 'TAKAMI' or brand == 'VICHY' or brand == 'YSL':
+        return "L'Oreal"
+    elif brand == 'M.A.C' or brand == 'Bobbi Brown' or brand == 'Clinique' or brand == 'Darphin' or brand == 'Estee Lauder' or brand == 'Origins':
+        return 'Lauder'
+    else:
+        return None  # 或者返回一个默认值，或者根据需求处理
+
+def map_brand_to_sector(brand):
+    if brand == 'LANCOME' or brand == 'BIOTHERM' or brand == 'Bobbi Brown' or brand == 'M.A.C' or brand == "Kiehl's" \
+            or brand == 'Clinique' or brand == 'Darphin' or brand == 'Estee Lauder' or brand == 'YSL'\
+             or brand == 'Origins' or brand == 'TAKAMI' or brand == 'Shu Uemura':
+        return "Selective"
+    elif brand == 'CeraVe' or brand == 'La Roche-Posay' or brand == 'SkinCeuticals' or brand == 'VICHY':
+        return 'Derma'
+    elif brand == "L'Oreal Paris" or brand == 'Maybelline':
+        return 'Mass'
+    elif brand == 'Kerastase' or brand == "L'Oreal Professionnel":
+        return 'Hair'
+    else:
+        return None  # 或者返回一个默认值，或者根据需求处理
 
 # @click.group()
 # def cli():
