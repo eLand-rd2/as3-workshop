@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from db.models import Brand
 from schemas.brand import BrandCreate, BrandUpdate
+from db.database import get_session
 
 
 def read_brands(db: Session, filters=None, order_by=None, limit=None, offset=None):
@@ -52,6 +53,19 @@ def update_brand(db: Session, brand_id: int, brand: BrandUpdate):
         return db_brand
     return None
 
+def update_brand_name(db: Session, brand_id: int, new_name: str):
+    # 1. 使用品牌 ID 查询数据库，找到要更新的品牌
+    db_brand = db.query(Brand).filter(Brand.id == brand_id).first()
+
+    # 2. 如果找到了品牌，将其名称更新为指定的内容
+    if db_brand:
+        db_brand.name = new_name
+
+        # 3. 提交更改到数据库中
+        db.commit()
+        return {"msg": "Brand name updated successfully"}
+
+    return {"msg": "Brand not found"}
 
 def delete_brand(db: Session, brand_id: int):
     db_brand = get_brand(db, brand_id)
@@ -60,3 +74,21 @@ def delete_brand(db: Session, brand_id: int):
         db.commit()
         return db_brand
     return None
+
+
+if __name__ == '__main__':
+    session = get_session()
+    brands_to_update = {
+        # 4: "Maybelline",
+        # 5: "L'Oreal Paris",
+        6: "Shu Uemura",
+        # 10: "Kiehl's",
+        # 15: "Shu Uemura",
+        # 17: "L'Oreal Professionnel",
+        # 19: "Maybelline",
+        # 22: "L'Oreal Paris",
+    }
+    for id, brand_name in brands_to_update.items():
+        update_brand_name(session, id, brand_name)
+        print(f'update {id=}')
+    session.close()
