@@ -55,7 +55,7 @@ class ShopeeSpider(BaseSpider):
                 time.sleep(1)
 
                 product_dict = {
-                    'ecommerce': 'shopee',
+                    'ecommerce': 'Shopee',
                     'brand':
                         {
                             'name': brand_name,
