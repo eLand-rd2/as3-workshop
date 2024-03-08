@@ -59,7 +59,7 @@ def update_brand_name(db: Session, brand_id: int, new_name: str):
 
     # 2. 如果找到了品牌，将其名称更新为指定的内容
     if db_brand:
-        db_brand.name = new_name
+        db_brand.ecommerce = new_name
 
         # 3. 提交更改到数据库中
         db.commit()
@@ -79,14 +79,14 @@ def delete_brand(db: Session, brand_id: int):
 if __name__ == '__main__':
     session = get_session()
     brands_to_update = {
-        # 4: "Maybelline",
-        # 5: "L'Oreal Paris",
-        6: "Shu Uemura",
-        # 10: "Kiehl's",
-        # 15: "Shu Uemura",
-        # 17: "L'Oreal Professionnel",
-        # 19: "Maybelline",
-        # 22: "L'Oreal Paris",
+        1: "Shopee",
+        2: "Shopee",
+        3: "Shopee",
+        4: "Shopee",
+        5: "Shopee",
+        6: "Shopee",
+        7: "Shopee",
+        8: "Shopee"
     }
     for id, brand_name in brands_to_update.items():
         update_brand_name(session, id, brand_name)

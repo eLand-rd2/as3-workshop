@@ -14,6 +14,7 @@ from schemas.category import CategoryCreate
 import click
 
 
+
 '''
 data = {
     'ecommerce': ['momo', 'momo', 'momo', 'momo', 'momo', 'momo', 'shopee', 'shopee', 'shopee', 'shopee', 'shopee'],
@@ -49,8 +50,8 @@ def process_reviews(begin, end, page_size=100):
             if not query_result:
                 break  # 沒有更多資料時
 
-            process_sentiment(query_result)
-            # process_topic(query_result)
+            # process_sentiment(query_result)
+            process_topic(query_result)
 
             # 更新 offset
             offset += page_size
@@ -171,7 +172,7 @@ def process_topic(reviews):
 def map_brand_to_group(brand):
     if brand == 'LANCOME' or brand == 'BIOTHERM' or brand == 'CeraVe' or brand == 'Kerastase' or brand == "Kiehl's" \
             or brand == 'La Roche-Posay' or brand == "L'Oreal Paris" or brand == "L'Oreal Professionnel" or brand == 'Maybelline' or brand == 'Shu Uemura'\
-             or brand == 'SkinCeuticals' or brand == 'TAKAMI' or brand == 'VICHY' or brand == 'YSL':
+             or brand == 'SkinCeuticals' or brand == 'TAKAMI' or brand == 'Vichy' or brand == 'YSL':
         return "L'Oreal"
     elif brand == 'M.A.C' or brand == 'Bobbi Brown' or brand == 'Clinique' or brand == 'Darphin' or brand == 'Estee Lauder' or brand == 'Origins':
         return 'Lauder'
@@ -183,7 +184,7 @@ def map_brand_to_sector(brand):
             or brand == 'Clinique' or brand == 'Darphin' or brand == 'Estee Lauder' or brand == 'YSL'\
              or brand == 'Origins' or brand == 'TAKAMI' or brand == 'Shu Uemura':
         return "Selective"
-    elif brand == 'CeraVe' or brand == 'La Roche-Posay' or brand == 'SkinCeuticals' or brand == 'VICHY':
+    elif brand == 'CeraVe' or brand == 'La Roche-Posay' or brand == 'SkinCeuticals' or brand == 'Vichy':
         return 'Derma'
     elif brand == "L'Oreal Paris" or brand == 'Maybelline':
         return 'Mass'

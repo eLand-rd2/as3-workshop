@@ -1,7 +1,6 @@
 import pandas as pd
 from datetime import datetime, date
 import dateutil.relativedelta
-from report_scripts import match_topics, get_sentiment, find_matched_topic
 from labeling_scripts import map_brand_to_group, map_brand_to_sector
 import settings
 from sqlalchemy import extract
@@ -40,29 +39,47 @@ first_day_of_last_month = (date(last_month.year, last_month.month, 1)).strftime(
 last_day_of_last_month = (date(now.year, now.month, 1) - dateutil.relativedelta.relativedelta(days=1)).strftime('%Y-%m-%d')
 first_day_dt = datetime.strptime(first_day_of_last_month, '%Y-%m-%d')
 last_day_dt = datetime.strptime(last_day_of_last_month, '%Y-%m-%d')
+'''
 
+begin_date_str = input("請輸入起始日期（格式為YYYY-MM-DD）：")
+try:
+    # 将日期字符串转换为 datetime 对象
+    begin_date_obj = datetime.strptime(begin_date_str, "%Y-%m-%d")
+    print("轉換後的日期為：", begin_date_obj)
+except ValueError:
+    print("輸入的日期格式不正確，請重新輸入。")
+
+end_date_str = input("請輸入起始日期（格式為YYYY-MM-DD）：")
+try:
+    # 将日期字符串转换为 datetime 对象
+    end_date_obj = datetime.strptime(end_date_str, "%Y-%m-%d")
+    print("轉換後的日期為：", end_date_obj)
+except ValueError:
+    print("輸入的日期格式不正確，請重新輸入。")
 
 # 建立db連線
 session = get_session()
 try:
     # 使用 get_data_with_date 擷取所有符合條件(上個月)的資料
-    data = get_data_with_date(session, first_day_dt, last_day_dt)
+    data = get_data_with_date(session, begin_date_obj, end_date_obj)
     # 將data轉換為 Pandas DataFrame
     df = pd.DataFrame(data)
 except Exception as e:
     print(f"Error fetching data from database: {str(e)}")
 finally:
     session.close()  # 關閉會話
-'''
-df = pd.read_excel('202401_電商評論_rawdata_0220.xlsx')
+
+print(df.head())
+# df = pd.read_excel('202401_電商評論_rawdata_0220.xlsx')
 
 df['Group'] = df['brand'].apply(map_brand_to_group)
 df['Sector'] = df['brand'].apply(map_brand_to_sector)
 df = df[df['Group'] == "L'Oreal"]  # 篩選 Loreal Group 的資料
-df['reviews'] = df['reviews'].fillna('-').astype(str)
+df['reviews'] = df['reviews'].apply(lambda x: '-' if x == '' else x)
+# df['reviews'] = df['reviews'].fillna('-').astype(str)
 df['topic'] = df['topic'].fillna('').astype(str)
+df['topic'] = df['topic'].apply(lambda x: ', '.join(eval(x)))
 df['sentiment'] = df['sentiment'].replace({'正面': 'positive', '負面': 'negative', '中立': 'neutral'})
-print(df)
 
 
 # 維度標記轉為二進制
@@ -174,7 +191,7 @@ sheet_6 = sheet_6.sort_values(by=['brand'], key=lambda x: x.str.lower())  # 依�
 
 # 輸出報表
 # 檔案名稱
-excel_filename = f'電商MonthlyReport_test.xlsx'
+excel_filename = f'電商MonthlyReport_2024_01.xlsx'
 # excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
@@ -197,10 +214,10 @@ with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     sheet_4.to_excel(writer, sheet_name='Derma', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
     # 將 sheet_5 寫入 Excel 檔案中的 'Mass' 頁籤
-    sheet_3.to_excel(writer, sheet_name='Mass', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
+    sheet_5.to_excel(writer, sheet_name='Mass', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
     # 將 sheet_6 寫入 Excel 檔案中的 'Hair' 頁籤
-    sheet_4.to_excel(writer, sheet_name='Hair', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
+    sheet_6.to_excel(writer, sheet_name='Hair', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
 
 
