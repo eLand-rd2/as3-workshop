@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from db.models import Topic
 from schemas.topic import TopicCreate, TopicUpdate
 from typing import Tuple
-
+from db.database import get_session
+from db.models import ReviewTopicAssociation
 
 
 def create_topic(db: Session, topic: TopicCreate):
@@ -47,6 +48,16 @@ def update_topic(db: Session, topic_id: int, topic: TopicUpdate):
 def delete_topic(db: Session, topic_id: int):
     db_topic = db.query(Topic).filter(Topic.id == topic_id).first()
     if db_topic:
+        db.query(ReviewTopicAssociation).filter(ReviewTopicAssociation.topic_id == topic_id).delete()
         db.delete(db_topic)
         db.commit()
     return {"msg": "Topic deleted"}
+
+
+if __name__ == '__main__':
+    session = get_session()
+    topic_id = [1, 2, 3, 4, 5]
+    for id in topic_id:
+        delete_topic(session, id)
+        print(f'delete {id=}')
+    session.close()
