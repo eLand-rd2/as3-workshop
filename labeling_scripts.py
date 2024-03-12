@@ -50,8 +50,8 @@ def process_reviews(begin, end, page_size=100):
             if not query_result:
                 break  # 沒有更多資料時
 
-            # process_sentiment(query_result)
-            process_topic(query_result)
+            process_sentiment(query_result)
+            # process_topic(query_result)
 
             # 更新 offset
             offset += page_size
@@ -159,7 +159,6 @@ def process_topic(reviews):
 
             # 將維度標記更新回資料庫
             if matched_topics:
-                print('回傳資料庫')
                 for topic_name in matched_topics:
                     # 比對 db 中是否已有此維度，若無則創建維度
                     topic_in_db = create_or_get_topic(session, topic_name)
