@@ -36,7 +36,7 @@ df = df[df['month'] == last_month]  # 取得上個月的資料
 
 
 # @click.command()
-def process_reviews(begin, end, page_size=100):
+def process_reviews(begin, end, page_size=500):
 
     # 建立db連線
     session = get_session()
@@ -50,8 +50,8 @@ def process_reviews(begin, end, page_size=100):
             if not query_result:
                 break  # 沒有更多資料時
 
-            process_sentiment(query_result)
-            # process_topic(query_result)
+            # process_sentiment(query_result)
+            process_topic(query_result)
 
             # 更新 offset
             offset += page_size
@@ -121,6 +121,7 @@ def process_reviews(begin, end, page_size=100):
 def process_sentiment(reviews):
     print('情緒標記中')
     session = get_session()
+    review_sentiment_data = []  # 用於儲存review_id和sentiment結果
     for review in reviews:
         # 取得 Review 相關資訊
         review_id = review.id
@@ -132,18 +133,25 @@ def process_sentiment(reviews):
             sentiment = get_sentiment(1, text)  # 利用 get_sentiment 進行情緒標記
             print(f'{sentiment=}, {type(sentiment)}')
 
-            # 將維度標記更新回資料庫
-            if sentiment:
-                print('回傳資料庫')
-                # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                update_review(session, review_id=review_id, sentiment=sentiment)
+            review_sentiment_data.append({'review_id': review_id, 'sentiment': sentiment})
         else:
             print('text is none')
+
+        # 將維度標記更新回資料庫
+        for data in review_sentiment_data:
+            review_id = data['review_id']
+            sentiment = data['sentiment']
+
+            update_review(session, review_id=review_id, sentiment=sentiment)
+
+        session.close()
+
 
 def process_topic(reviews):
     print('維度標記中')
     try:
         session = get_session()
+        review_topic_data = []  # 用於儲存topic_id和review_id
         for review in reviews:
             # 取得 Review 相關資訊
             review_id = review.id
@@ -157,13 +165,22 @@ def process_topic(reviews):
 
             matched_topics = match_topics(text)  # 利用 match_topics 進行維度標記
 
-            # 將維度標記更新回資料庫
             if matched_topics:
-                for topic_name in matched_topics:
-                    # 比對 db 中是否已有此維度，若無則創建維度
-                    topic_in_db = create_or_get_topic(session, topic_name)
-                    # 比對review_id 與 topic_id，並將維度標記存入資料庫
-                    append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
+                review_topic_data.append({'review_id': review_id, 'matched_topics': matched_topics})
+
+        # 將標記完所有評論後，將維度標記結果更新回資料庫
+        for data in review_topic_data:
+            review_id = data['review_id']
+            matched_topics = data['matched_topics']
+
+            for topic_name in matched_topics:
+                # 比對 db 中是否已有此維度，若無則創建維度
+                topic_in_db = create_or_get_topic(session, topic_name)
+                # 比對review_id 與 topic_id，並將維度標記存入資料庫
+                append_topic(session, review_id=review_id, topic_id=topic_in_db.id)
+
+        session.close()  # 關閉會話
+
     except Exception as e:
         print(f"Error fetching data from database: {e}")
 

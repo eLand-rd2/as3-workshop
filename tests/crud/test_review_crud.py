@@ -1,9 +1,10 @@
 import pytest
 
-from crud.review import create_review, get_review, update_review, delete_review, append_topic, remove_topic
+from crud.review import create_review, get_review, update_review, delete_review, append_topic, remove_topic, delete_review_by_posttime
 from crud.topic import create_topic
 from schemas.review import ReviewCreate, ReviewUpdate
 from schemas.topic import TopicCreate
+from datetime import datetime
 
 
 def test_create_review(db_session):
@@ -36,7 +37,6 @@ def test_delete_review(db_session):
     delete_review(db_session, review.id)
     deleted_review = get_review(db_session, review.id)
     assert deleted_review is None
-
 
 def test_append_topic(db_session):
     review_data = ReviewCreate(text="Test Review", rating=4.5, product_id=1, post_time="2024-01-01 00:00:00")

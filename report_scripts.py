@@ -90,9 +90,16 @@ if __name__ == '__main__':
     df['match_topic'] = df['reviews'].apply(match_topics)
     print(df)
 
-'''
+
 if __name__ == '__main__':
     doc = ""
     sentiment = get_sentiment(1, doc)
     print(sentiment)
+'''
+
+if __name__ == '__main__':
+    df = pd.read_excel("topic_test.xlsx")
+
+    df['matched_topic'] = df['comment'].apply(match_topics)
+    print(df)
 
