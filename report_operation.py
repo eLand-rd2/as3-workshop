@@ -197,7 +197,7 @@ sheet_6 = sheet_6.sort_values(by=['brand', 'ecommerce'], ascending=[True, True],
 
 # 輸出報表
 # 檔案名稱
-excel_filename = f'電商MonthlyReport_2024_02.xlsx'
+excel_filename = f'ECMonthlyReport_2024_01.xlsx'
 # excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
