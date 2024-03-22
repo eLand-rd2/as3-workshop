@@ -103,12 +103,17 @@ sheet_0 = df.groupby(['brand', 'Sector']).agg({
 sheet_0['rating'] = sheet_0['rating'].round(2)  # 當期平均星等取到小數點後兩位
 sheet_0['rating'] = sheet_0['rating'].apply(lambda x: "{:.2f}".format(x))
 # 計算 P/N 比
-sheet_0['PN_ratio'] = sheet_0.apply(lambda row:
-                                    '-' if row['sentiment_negative'] == 0
-                                    else 0 if row['sentiment_positive'] == 0
-                                    else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
-                                    axis=1)
-sheet_0 = sheet_0[['brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'PN_ratio']]  # 重新排序欄位
+# sheet_0['PN_ratio'] = sheet_0.apply(lambda row:
+#                                     '-' if row['sentiment_negative'] == 0
+#                                     else 0 if row['sentiment_positive'] == 0
+#                                     else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
+#                                     axis=1)
+
+# 計算 net sentiment
+sheet_0['net_sentiment'] = ((sheet_0['sentiment_positive'] - sheet_0['sentiment_negative']) /
+                       (sheet_0['sentiment_positive'] + sheet_0['sentiment_negative'] + sheet_0['sentiment_neutral'])) * 100
+sheet_0['net_sentiment'] = sheet_0['net_sentiment'].round(1).astype(str) + '%'
+sheet_0 = sheet_0[['brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
 sheet_0 = sheet_0.sort_values(by=['rating'], ascending=False)  # 依照rating由大到小排序
 
 
@@ -123,12 +128,17 @@ sheet_1 = df.groupby(['ecommerce', 'brand', 'Sector']).agg({
 sheet_1['rating'] = sheet_1['rating'].round(2)  # 當期平均星等取到小數點後兩位
 sheet_1['rating'] = sheet_1['rating'].apply(lambda x: "{:.2f}".format(x))
 # 計算 P/N 比
-sheet_1['PN_ratio'] = sheet_1.apply(lambda row:
-                                    '-' if row['sentiment_negative'] == 0
-                                    else 0 if row['sentiment_positive'] == 0
-                                    else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
-                                    axis=1)
-sheet_1 = sheet_1[['ecommerce', 'brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'PN_ratio']]  # 重新排序欄位
+# sheet_1['PN_ratio'] = sheet_1.apply(lambda row:
+#                                     '-' if row['sentiment_negative'] == 0
+#                                     else 0 if row['sentiment_positive'] == 0
+#                                     else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
+#                                     axis=1)
+
+# 計算 net sentiment
+sheet_1['net_sentiment'] = ((sheet_1['sentiment_positive'] - sheet_1['sentiment_negative']) /
+                       (sheet_1['sentiment_positive'] + sheet_1['sentiment_negative'] + sheet_1['sentiment_neutral'])) * 100
+sheet_1['net_sentiment'] = sheet_1['net_sentiment'].round(1).astype(str) + '%'
+sheet_1 = sheet_1[['ecommerce', 'brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
 sheet_1 = sheet_1.sort_values(by=['ecommerce', 'rating'], ascending=[True, False])  # 依照rating由大到小排序
 
 
@@ -148,18 +158,24 @@ for key, value in settings.topics.items():
 # 合併所有維度標記結果
 sheet_2 = pd.concat(all_topic_result, ignore_index=True)
 # 計算pn比
-sheet_2['PN_ratio'] = sheet_2.apply(lambda row:
-                                    '-' if row['sentiment_negative'] == 0
-                                    else 0 if row['sentiment_positive'] == 0
-                                    else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
-                                    axis=1)
+# sheet_2['PN_ratio'] = sheet_2.apply(lambda row:
+#                                     '-' if row['sentiment_negative'] == 0
+#                                     else 0 if row['sentiment_positive'] == 0
+#                                     else "{:.1f}".format(round(row['sentiment_positive'] / row['sentiment_negative'], 1)),
+#                                     axis=1)
+
+# 計算 net sentiment
+sheet_2['net_sentiment'] = ((sheet_2['sentiment_positive'] - sheet_2['sentiment_negative']) /
+                       (sheet_2['sentiment_positive'] + sheet_2['sentiment_negative'] + sheet_2['sentiment_neutral'])) * 100
+sheet_2['net_sentiment'] = sheet_2['net_sentiment'].round(1).astype(str) + '%'
+
 # 定义 Sector 列的自定义类别
 custom_category = ['Selective', 'Derma', 'Mass', 'Hair']
 sheet_2['Sector'] = pd.Categorical(sheet_2['Sector'], categories=custom_category, ordered=True)
 
 # 按照 'ecommerce'、'aspect' 和 'Sector' 进行排序
 sheet_2 = sheet_2.sort_values(by=['ecommerce', '維度', 'Sector'])  # 依照Brand首字母a到z排序
-sheet_2 = sheet_2[['ecommerce', '維度', 'brand', 'Sector', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'PN_ratio']]  # 重新排序欄位
+sheet_2 = sheet_2[['ecommerce', '維度', 'brand', 'Sector', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
 
 
 
@@ -197,7 +213,7 @@ sheet_6 = sheet_6.sort_values(by=['brand', 'ecommerce'], ascending=[True, True],
 
 # 輸出報表
 # 檔案名稱
-excel_filename = f'EC_OfficialStore_MonthlyReport_2024_01.xlsx'
+excel_filename = f'EC_OfficialStore_MonthlyReport_2024_02.xlsx'
 # excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
@@ -205,13 +221,13 @@ excel_filename = f'EC_OfficialStore_MonthlyReport_2024_01.xlsx'
 # 檔案內容
 with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     # 將 sheet_0 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
-    sheet_0.to_excel(writer, sheet_name='Total brand', index=False, header=['Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'P/N ratio'])
+    sheet_0.to_excel(writer, sheet_name='Total brand', index=False, header=['Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_1 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
-    sheet_1.to_excel(writer, sheet_name='By platform', index=False, header=['EC platform', 'Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'P/N ratio'])
+    sheet_1.to_excel(writer, sheet_name='By platform', index=False, header=['EC platform', 'Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_2 寫入 Excel 檔案中的 '評論類別總表' 頁籤
-    sheet_2.to_excel(writer, sheet_name='By aspect', index=False, header=['EC platform', 'Aspect', 'Brand', 'Brand Sector', 'positive volume', 'negative volume', 'neutral volume', 'P/N ratio'])
+    sheet_2.to_excel(writer, sheet_name='By aspect', index=False, header=['EC platform', 'Aspect', 'Brand', 'Brand Sector', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_3 寫入 Excel 檔案中的 'Selective' 頁籤
     sheet_3.to_excel(writer, sheet_name='Selective', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
