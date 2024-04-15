@@ -21,7 +21,7 @@ def upload_reviews_to_database(session, review_data_list: list):
 # 示例用法
 if __name__ == "__main__":
     # 假设您有一个 review_data_list 包含了要上传的评论数据
-    df = pd.read_excel("momo_rawdata_for_upload_2402.xlsx")
+    df = pd.read_excel("loreal_shopee_202403_上傳rawdata.xlsx")
     df['content'] = df['content'].fillna('').astype(str)
     print(df.head())
 
