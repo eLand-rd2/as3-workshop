@@ -5,6 +5,7 @@ from db.models import Review, Topic, ReviewTopicAssociation
 from schemas.review import ReviewCreate, ReviewUpdate, ReviewBase
 from schemas.topic import TopicCreate
 
+
 def create_review(db: Session, review: ReviewCreate): # 這個是給廣興用來存進去的
     db_review = Review(**review.model_dump())
     db.add(db_review)
@@ -89,3 +90,5 @@ def remove_topic(db: Session, review_id: int, topic_id: int):
         db.commit()
         db.refresh(db_review)
         return db_review
+
+

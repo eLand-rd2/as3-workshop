@@ -73,8 +73,9 @@ print(df.head())
 # df = pd.read_excel('202401_電商評論_rawdata_0220.xlsx')
 
 df['Group'] = df['brand'].apply(map_brand_to_group)
+# df['Group'].fillna('None', inplace=True)  # 先將Group是空白的替換成'None'
 df['Sector'] = df['brand'].apply(map_brand_to_sector)
-df = df[df['Group'] == "L'Oreal"]  # 篩選 Loreal Group 的資料
+# df = df[df['Group'] == "L'Oreal"]  # 篩選 Loreal Group 的資料
 df['reviews'] = df['reviews'].apply(lambda x: '-' if x == '' else x)
 # df['reviews'] = df['reviews'].fillna('-').astype(str)
 df['topic'] = df['topic'].fillna('').astype(str)
@@ -93,7 +94,7 @@ df = pd.concat([df, sentiment_dummies], axis=1)
 
 
 # Sheet 0：各品牌的 total 表現
-sheet_0 = df.groupby(['brand', 'Sector']).agg({
+sheet_0 = df.groupby(['brand','Group', 'Sector']).agg({
     'reviews': 'count',  # 評倫則數
     'rating': 'mean',  # 當期平均星等
     'sentiment_positive': 'sum',  # 正評數
@@ -113,12 +114,13 @@ sheet_0['rating'] = sheet_0['rating'].apply(lambda x: "{:.2f}".format(x))
 sheet_0['net_sentiment'] = ((sheet_0['sentiment_positive'] - sheet_0['sentiment_negative']) /
                        (sheet_0['sentiment_positive'] + sheet_0['sentiment_negative'] + sheet_0['sentiment_neutral'])) * 100
 sheet_0['net_sentiment'] = sheet_0['net_sentiment'].round(1).astype(str) + '%'
-sheet_0 = sheet_0[['brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
+sheet_0 = sheet_0[['brand', 'Group', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
 sheet_0 = sheet_0.sort_values(by=['rating'], ascending=False)  # 依照rating由大到小排序
+sheet_0['Group'] = sheet_0['Group'].replace('None', '')
 
 
 # Sheet 1 : momo與shopee兩個來源中，各品牌的總評論數&平均星等
-sheet_1 = df.groupby(['ecommerce', 'brand', 'Sector']).agg({
+sheet_1 = df.groupby(['ecommerce', 'brand', 'Group', 'Sector']).agg({
     'reviews': 'count',  # 評倫則數
     'rating': 'mean',  # 當期平均星等
     'sentiment_positive': 'sum',  # 正評數
@@ -138,8 +140,9 @@ sheet_1['rating'] = sheet_1['rating'].apply(lambda x: "{:.2f}".format(x))
 sheet_1['net_sentiment'] = ((sheet_1['sentiment_positive'] - sheet_1['sentiment_negative']) /
                        (sheet_1['sentiment_positive'] + sheet_1['sentiment_negative'] + sheet_1['sentiment_neutral'])) * 100
 sheet_1['net_sentiment'] = sheet_1['net_sentiment'].round(1).astype(str) + '%'
-sheet_1 = sheet_1[['ecommerce', 'brand', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
+sheet_1 = sheet_1[['ecommerce', 'brand', 'Group', 'Sector', 'reviews', 'rating', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
 sheet_1 = sheet_1.sort_values(by=['ecommerce', 'rating'], ascending=[True, False])  # 依照rating由大到小排序
+sheet_1['Group'] = sheet_1['Group'].replace('None', '')
 
 
 # sheet_2 : momo與shopee兩個來源中，各品牌的5維度分別的正評數、負評數、中立數以及PN比
@@ -147,7 +150,7 @@ all_topic_result = []
 for key, value in settings.topics.items():
     # print(key)
     topic_result = df[df[key] == 1]
-    topic_result = topic_result.groupby(['ecommerce', 'brand', 'Sector']).agg({
+    topic_result = topic_result.groupby(['ecommerce', 'brand', 'Group', 'Sector']).agg({
         'sentiment_positive': 'sum',  # 正評數
         'sentiment_negative': 'sum',  # 負評數
         'sentiment_neutral': 'sum',  # 中立數
@@ -174,46 +177,50 @@ custom_category = ['Selective', 'Derma', 'Mass', 'Hair']
 sheet_2['Sector'] = pd.Categorical(sheet_2['Sector'], categories=custom_category, ordered=True)
 
 # 按照 'ecommerce'、'aspect' 和 'Sector' 进行排序
-sheet_2 = sheet_2.sort_values(by=['ecommerce', '維度', 'Sector'])  # 依照Brand首字母a到z排序
-sheet_2 = sheet_2[['ecommerce', '維度', 'brand', 'Sector', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
-
+sheet_2 = sheet_2.sort_values(by=['ecommerce', '維度','Sector'])  # 依照Brand首字母a到z排序
+sheet_2 = sheet_2[['ecommerce', '維度', 'brand', 'Group',  'Sector', 'sentiment_positive', 'sentiment_negative', 'sentiment_neutral', 'net_sentiment']]  # 重新排序欄位
+sheet_2['Group'] = sheet_2['Group'].replace('None', '')
 
 
 # sheet 3 : Sector為Selective中，各品牌產品的評論內容、各評論之星等
 selective_df = df[df['Sector'] == 'Selective']    # 篩選 Sector = Selective 的資料
-sheet_3 = selective_df.groupby(['ecommerce', 'brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+sheet_3 = selective_df.groupby(['ecommerce', 'brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 # sheet_3 = sheet_3.drop(columns=['level_2'])
-sheet_3 = sheet_3[['ecommerce', 'brand', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
+sheet_3 = sheet_3[['ecommerce', 'brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_3 = sheet_3.sort_values(by=['brand', 'ecommerce'], ascending=[True, True], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
+sheet_3['Group'] = sheet_3['Group'].replace('None', '')
 
 
 # sheet_4 : Sector為Derma中，各品牌產品的評論內容、各評論之星等
 derma_df = df[df['Sector'] == 'Derma']    # 篩選 Sector = Derma 的資料
-sheet_4 = derma_df.groupby(['ecommerce', 'brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+sheet_4 = derma_df.groupby(['ecommerce', 'brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 # sheet_4 = sheet_4.drop(columns=['level_2'])
-sheet_4 = sheet_4[['ecommerce', 'brand', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
+sheet_4 = sheet_4[['ecommerce', 'brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_4 = sheet_4.sort_values(by=['brand', 'ecommerce'], ascending=[True, True], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
+sheet_4['Group'] = sheet_4['Group'].replace('None', '')
 
 
 # sheet_5 : Sector為Mass中，各品牌產品的評論內容、各評論之星等
 mass_df = df[df['Sector'] == 'Mass']    # 篩選 Sector = Mass 的資料
-sheet_5 = mass_df.groupby(['ecommerce', 'brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+sheet_5 = mass_df.groupby(['ecommerce', 'brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 # sheet_5 = sheet_5.drop(columns=['level_2'])
-sheet_5 = sheet_5[['ecommerce', 'brand', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
+sheet_5 = sheet_5[['ecommerce', 'brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_5 = sheet_5.sort_values(by=['brand', 'ecommerce'], ascending=[True, True], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
+sheet_5['Group'] = sheet_5['Group'].replace('None', '')
 
 
 # sheet_6 : Sector為Hair中，各品牌產品的評論內容、各評論之星等
 hair_df = df[df['Sector'] == 'Hair']    # 篩選 Sector = Hair 的資料
-sheet_6 = hair_df.groupby(['ecommerce', 'brand', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
+sheet_6 = hair_df.groupby(['ecommerce', 'brand', 'Group', 'product']).apply(lambda x: x[['reviews', 'rating', 'sentiment', 'topic']].reset_index(drop=True)).reset_index()
 # sheet_6 = sheet_6.drop(columns=['level_2'])
-sheet_6 = sheet_6[['ecommerce', 'brand', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
+sheet_6 = sheet_6[['ecommerce', 'brand', 'Group', 'product', 'reviews', 'rating', 'sentiment', 'topic']]  # 重新排序欄位
 sheet_6 = sheet_6.sort_values(by=['brand', 'ecommerce'], ascending=[True, True], key=lambda x: x.str.lower())  # 依照Brand首字母a到z排序
+sheet_6['Group'] = sheet_6['Group'].replace('None', '')
 
 
 # 輸出報表
 # 檔案名稱
-excel_filename = f'EC_OfficialStore_MonthlyReport_2024_03.xlsx'
+excel_filename = f'EC_OfficialStore_MonthlyReport_2024_03_test.xlsx'
 # excel_filename = f'電商MonthlyReport_{last_year}_{last_month}.xlsx'
 # 檔案儲存路徑
 # excel_file_path = settings.file_path
@@ -221,25 +228,24 @@ excel_filename = f'EC_OfficialStore_MonthlyReport_2024_03.xlsx'
 # 檔案內容
 with pd.ExcelWriter(excel_filename, engine='xlsxwriter') as writer:
     # 將 sheet_0 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
-    sheet_0.to_excel(writer, sheet_name='Total brand', index=False, header=['Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
+    sheet_0.to_excel(writer, sheet_name='Total brand', index=False, header=['Brand', 'Group', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_1 寫入 Excel 檔案中的 '評論聲量總表' 頁籤
-    sheet_1.to_excel(writer, sheet_name='By platform', index=False, header=['EC platform', 'Brand', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
+    sheet_1.to_excel(writer, sheet_name='By platform', index=False, header=['EC platform', 'Brand', 'Group', 'Brand Sector', 'rating volume', 'avg. rating score', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_2 寫入 Excel 檔案中的 '評論類別總表' 頁籤
-    sheet_2.to_excel(writer, sheet_name='By aspect', index=False, header=['EC platform', 'Aspect', 'Brand', 'Brand Sector', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
+    sheet_2.to_excel(writer, sheet_name='By aspect', index=False, header=['EC platform', 'Aspect', 'Brand', 'Group', 'Brand Sector', 'positive volume', 'negative volume', 'neutral volume', 'net sentiment'])
 
     # 將 sheet_3 寫入 Excel 檔案中的 'Selective' 頁籤
-    sheet_3.to_excel(writer, sheet_name='Selective', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
+    sheet_3.to_excel(writer, sheet_name='Selective', index=False, header=['EC platform', 'Brand', 'Group', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
     # 將 sheet_4 寫入 Excel 檔案中的 'Derma' 頁籤
-    sheet_4.to_excel(writer, sheet_name='Derma', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
+    sheet_4.to_excel(writer, sheet_name='Derma', index=False, header=['EC platform', 'Brand', 'Group', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
     # 將 sheet_5 寫入 Excel 檔案中的 'Mass' 頁籤
-    sheet_5.to_excel(writer, sheet_name='Mass', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
+    sheet_5.to_excel(writer, sheet_name='Mass', index=False, header=['EC platform', 'Brand', 'Group', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
     # 將 sheet_6 寫入 Excel 檔案中的 'Hair' 頁籤
-    sheet_6.to_excel(writer, sheet_name='Hair', index=False, header=['EC platform', 'Brand', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
-
+    sheet_6.to_excel(writer, sheet_name='Hair', index=False, header=['EC platform', 'Brand', 'Group', 'Product', 'comment', 'rating', 'sentiment', 'aspect'], engine='openpyxl')
 
 
